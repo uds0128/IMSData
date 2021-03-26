@@ -4,8 +4,7 @@
     $mydata = json_decode($data, true);
     $category_name = $mydata['cname'];
 
-    mysqli_autocommit($conn, false);
-    $transflag = false;
+  
 
     if($category_name != '')
     {
@@ -21,56 +20,60 @@
             $noofrecord = $row['noofrecord'];
             if($noofrecord == 0)
             {
+                mysqli_autocommit($conn, false);
+                $transflag = false;
 
-            }
-            else if($noofrecord == 1)
-            {
+                $query = "INSERT INTO CATEGORIES (category_name) VALUES ('".$category_name."')";
+                $result = mysqli_query($conn, $query);
 
-            }
-            else
-            {
-                
-            }
-            $query = "INSERT INTO CATEGORIES (category_name) VALUES ('".$category_name."')";
-            $result = mysqli_query($conn, $query);
-
-            if($result)
-            {
-                $transflag = true;
-
-                if($transflag)
+                if($result)
                 {
-                    if(mysqli_commit($conn))
+                    $transflag = true;
+
+                    if($transflag)
                     {
-                        mysqli_autocommit($conn, true);
-                        echo true;
+                        if(mysqli_commit($conn))
+                        {   
+                            mysqli_autocommit($conn, true);
+                            echo "1"; // 1=>success
+                        }
+                        else
+                        {
+                            mysqli_rollback($conn);
+                            mysqli_autocommit($conn, true);
+                            die('-1'); // -1=>commit fail
+                        }
                     }
                     else
                     {
+                        mysqli_rollback($conn);
                         mysqli_autocommit($conn, true);
-                        
+                        die('-2'); // -2=>transflag err
                     }
                 }
                 else
                 {
+                    mysqli_rollback($conn);
                     mysqli_autocommit($conn, true);
+                    die('-3'); // -3=>err in insert query
                 }
             }
-            else
+            else if($noofrecord == 1)
             {
-                mysqli_autocommit($conn, true);
-                die false;
+                die('-4'); // -4=>record exists
+            }
+            else
+            {   
+                die('-5'); // -5=>MORE THen one record or No record found
             }
         }
         else
         {
-            mysqli_autocommit($conn, true);
-            die false;
+            die('-6'); // -6=>err in checking query
         }
     }
     else
     {
-        mysqli_autocommit($conn, true);
-        die false;
+        die('-7'); // -7=>categoryname empty
     }
 ?>

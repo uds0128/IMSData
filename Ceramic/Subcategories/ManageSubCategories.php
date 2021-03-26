@@ -13,6 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <style>
         .old-category:disabled {
             background-color: lightslategrey;
@@ -117,7 +118,6 @@
                             <div class="col-md-4">
                                 <input class='form-control' id='getHSNCode' type="number"
                                     onKeyPress="if(this.value.length==8) return false;" disabled>
-                                <!-- <input class='form-control' id='getSubCategoryId' type="text" disabled hidden>  -->
                             </div>
                             <div class="col-md-2">
                                 <center><label class='form-label' id='OldHSNCodeLabel' for="OldHSNCodeLabel" hidden>Old
@@ -134,9 +134,6 @@
                                 <label class='form-label' for="GSTLabel">GST :</label>
                             </div>
                             <div class="col-md-4">
-                                <!-- <input class='form-control' id='getGST' type="number"
-                                    onKeyPress="if(this.value.length==8) return false;" disabled> -->
-                                <!-- <input class='form-control' id='getSubCategoryId' type="text" disabled hidden>  -->
                                 <select name="" id="selectgst" class='form-select' disabled>
                                     <option value="-1">Select</option>
                                     <option value="5">5</option>
@@ -155,25 +152,6 @@
                             </div>
                         </div>
 
-
-                        <!-- <div>
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <label class='form-label' for="CategoryName">Category Name : </label>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class='form-control' type="text" id='CategoryName'>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class='form-label' for="OldCategoryName" id='OldCategoryLabel' hidden>Old
-                                        Category Name : </label>
-                                </div>
-                                <div class="col-md-4">
-                                    <input class='form-control old-category' type="text" id='OldCategoryName' disabled
-                                        hidden>
-                                    <input type="text" id='OldCategoryId' value='' disabled hidden>
-                                </div>
-                            </div> -->
                         <button id='addbtn' class='btn btn-primary mt-3' disabled>Add</button>
                         <button id='savebtn' class='btn btn-primary mt-3' disabled>Save</button>
                         <button id='cancelbtn' class='btn btn-primary mt-3' disabled>Cancel</button>
@@ -191,48 +169,8 @@
                                 </tr>
                             </thead>
                             <tbody id='tblbody'>
-                                <!-- <?php
-                                    $query = "SELECT * from categories";
-                                    $result = mysqli_query($conn, $query);
-                                    if($result->num_rows > 0)
-                                    {
-                                        while($row = $result->fetch_assoc())
-                                        {
-                                            $category_no = $row['category_id'];
-                                            $category = $row['category_name'];
-                                            $active_status = $row['active_status'];
-                                            $color;
-                                            $btnname;
-                                            if($active_status == '1')
-                                            {
-                                                $color = 'success';
-                                                $btnname = 'Deactive';
-                                            }
-                                            else
-                                            {
-                                                $color = 'danger';
-                                                $btnname = 'Active';
-                                            }
-                                            echo
-                                            "<tr>
-                                                <td>".$category_no."</td>
-                                                <td>".$category."</td>
-                                                <td>
-                                                    <button class='btn btn-success btn-edit' cid=".$category_no.">Edit</button>
-                                                    <button class='btn btn-".$color." btn-active' cid=".$category_no." as=".$active_status.">".$btnname."</button>
-                                                </td>
-                                            </tr>";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        echo "<script> alert('Something Went Wrong ! Please Refresh')</script>";
-                                    }
-                                ?> -->
                             </tbody>
                         </table>
-                        <!-- </form>    -->
-
                     </div>
                 </div>
             </div>
@@ -249,8 +187,6 @@
                 let id = $(this).attr("scid");
                 let as = $(this).attr("as");
                 let t = $(this);
-                console.log(as);
-                console.log(id);
 
                 if (id != '' && as != '') {
                     let myobj = { cid: id, as: as };
@@ -259,29 +195,22 @@
                         url: './ManageSubCategoryAjax/changeActiveStatusSubCategory.php',
                         data: JSON.stringify(myobj),
                         success: function (Data) {
-
-                            console.log('HELLO');
                             if (as == '1' && Data == '1') {
-
-                                console.log('HELLO2');
                                 t.attr("as", '0');
                                 t.removeClass('btn-success');
                                 t.addClass('btn-danger');
                                 t.html('Active');
                             }
                             else if (as == '1' && Data == '0') {
-                                console.log('HELLO3');
                                 alert('Status Not Changed');
                             }
                             else if (as == '0' && Data == '1') {
-                                console.log('HELLO4');
                                 t.attr("as", '1');
                                 t.removeClass('btn-danger');
                                 t.addClass('btn-success');
                                 t.html('Deactive');
                             }
                             else {
-                                console.log('HELLO5');
                                 alert('Status Not Changed');
                             }
                         }
@@ -294,7 +223,6 @@
                 let id = $(this).attr("scid");
                 let t = $(this);
                 $("#categories_name").prop('disabled', true);
-                console.log(id);
                 if (id != '') {
                     let myobj = { scid: id };
                     $.ajax({
@@ -303,7 +231,7 @@
                         data: JSON.stringify(myobj),
                         dataType: 'json',
                         success: function (Data) {
-                            console.log(Data);
+                            //console.log(Data);
 
                             if (Data[0].FLAG == "RECORDFOUND") {
 
@@ -340,94 +268,86 @@
             });
 
             $('#savebtn').on('click', function () {
-
                 let id = $('#getSubCategoryId').val();
                 let subcategory_name = $('#getSubCategoryName').val();
                 let hsncode = $("#getHSNCode").val();
                 let gst = $("#selectgst").val();
-                console.log(hsncode);
-
                 let myobj = { scid: id, scname: subcategory_name, hsncode: hsncode, gst: gst };
-                console.log(myobj);
+
                 if (subcategory_name != '' && scid != '' && hsncode != '' && gst != '') {
                     $.ajax({
                         type: "POST",
                         url: './ManageSubCategoryAjax/editSubCategory.php',
                         data: JSON.stringify(myobj),
                         success: function (Data) {
-                            console.log(Data);
-                            if (Data == "OKK") {
-                                $('#getSubCategoryId').val('');
-
-                                $("#getSubCategoryName").val('');
-                                $("#getSubCategoryName").prop('disabled', true);
-                                $("#getOldSubCategoryName").val('');
-                                $("#OldSubCategoryLabel").attr('hidden', true);
-                                $("#getOldSubCategoryName").attr('hidden', true);
-                                $("#getHSNCode").val('');
-                                $("#getHSNCode").prop('disabled', true);
-                                $("#OldHSNCodeLabel").attr('hidden', true);
-                                $("#OldHSNCode").attr('hidden', true);
-
-                                $("#addcheck").prop("checked", false);
-
-                                //$("#getOldSubCategoryName").val('');
-                                $("#addbtn").attr('disabled', true);
-                                $("#savebtn").attr('disabled', true);
-                                $("#cancelbtn").attr('disabled', true);
-                                $("#loadbtn").attr('disabled', false);
-                                editflag = false;
-                                $("#categories_name").prop('disabled', false);
-                                $("#OldGstLabel").prop('hidden', true);
-                                $("#OldGst").prop('hidden', true);
-                                $("#OldGst").val("");
-                                $("#selectgst").val('-1');
-                                $("#selectgst").prop('disabled', true);
-
-
-                                //location.reload(true);
-                                ReloadTable();
+                            //console.log(Data);
+                            if (Data == "1") {
+                                swal('Succesfully Updated Subcategory', '', 'success').then(() => {
+                                    $('#getSubCategoryId').val('');
+                                    $("#getSubCategoryName").val('');
+                                    $("#getSubCategoryName").prop('disabled', true);
+                                    $("#getOldSubCategoryName").val('');
+                                    $("#OldSubCategoryLabel").attr('hidden', true);
+                                    $("#getOldSubCategoryName").attr('hidden', true);
+                                    $("#getHSNCode").val('');
+                                    $("#getHSNCode").prop('disabled', true);
+                                    $("#OldHSNCodeLabel").attr('hidden', true);
+                                    $("#OldHSNCode").attr('hidden', true);
+                                    $("#addcheck").prop("checked", false);
+                                    $("#addbtn").attr('disabled', true);
+                                    $("#savebtn").attr('disabled', true);
+                                    $("#cancelbtn").attr('disabled', true);
+                                    $("#loadbtn").attr('disabled', false);
+                                    editflag = false;
+                                    $("#categories_name").prop('disabled', false);
+                                    $("#OldGstLabel").prop('hidden', true);
+                                    $("#OldGst").prop('hidden', true);
+                                    $("#OldGst").val("");
+                                    $("#selectgst").val('-1');
+                                    $("#selectgst").prop('disabled', true);
+                                    ReloadTable();
+                                });
                             }
-                            else if (Data == "RECORDFOUND") {
+                            else if (Data == "-3") {
                                 console.log('RECORD FOUND');
-                                alert("Something Went Wrong");
+                                swal('Subcategory Already Exists','','info');
                             }
-                            else if (Data == "COMMITFAIL") {
+                            else if (Data == "-1") {
                                 console.log('Commit Fail');
-                                alert("Something Went Wrong");
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "MORERECORD") {
-                                console.log('More Then One Record Found');
-                                alert("Something Went Wrong");
+                            else if (Data == "-2") {
+                                console.log('err in update query');
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "ERRINCHEACKING") {
-                                console.log('Error In Cheacking');
-                                alert("Something Went Wrong");
-
+                            else if (Data == "-4") {
+                                console.log('morethen one record or err');
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "PARAMEMPTY") {
-                                console.log("Parameters Empty");
-                                alert("Something Went Wrong");
+                            else if (Data == "-5") {
+                                console.log("err in checking query");
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "ERRORINUPDATING") {
-                                console.log("ERROR WHILE UPDATING");
-                                alert("Something Went Wrong");
+                            else if (Data == "-6") {
+                                console.log("parameter empty");
+                                swal("Something Went Wrong", '', 'error');
                             }
                             else {
                                 console.log("Other Then Flag");
-                                alert("Something Went Wrong");
+                                swal("Something Went Wrong", '', 'error');
                             }
                         },
                         error: function (Data) {
                             console.log('Error In edit dubcategory Ajax Call');
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                     });
 
                 }
                 else {
-                    alert('Please Fill All The Field');
-                    location.reload(true);
+                    swal("Please Fill All The Field", '', 'info').then(()=>{
+                        location.reload(true);
+                    });           
                 }
             });
 
@@ -436,9 +356,6 @@
                 let subcategory_name = $('#getSubCategoryName').val();
                 let hsncode = $('#getHSNCode').val();
                 let gst = $('#selectgst').val();
-                console.log("KKKKKK");
-                console.log(gst);
-                console.log("DDDDDDDDDD");
 
                 if (subcategory_name != '' && category_id != '-1' && hsncode != '' && gst != "-1") {
                     myobj = { scname: subcategory_name, cid: category_id, hsncode: hsncode, gst: gst };
@@ -447,106 +364,68 @@
                         url: './ManageSubCategoryAjax/addSubCategory.php',
                         data: JSON.stringify(myobj),
                         success: function (Data) {
-                            console.log(Data);
-                            if (Data == "OKK") {
-                                $('#getSubCategoryId').val('');
-
-                                $("#getSubCategoryName").val('');
-                                $("#getSubCategoryName").prop('disabled', true);
-                                $("#getOldSubCategoryName").val('');
-                                $("#OldSubCategoryLabel").attr('hidden', true);
-                                $("#getOldSubCategoryName").attr('hidden', true);
-                                $("#getHSNCode").val('');
-                                $("#getHSNCode").prop('disabled', true);
-                                $("#OldHSNCodeLabel").attr('hidden', true);
-                                $("#OldHSNCode").attr('hidden', true);
-
-                                $("#addcheck").prop("checked", false);
-
-                                //$("#getOldSubCategoryName").val('');
-                                $("#addbtn").attr('disabled', true);
-                                $("#savebtn").attr('disabled', true);
-                                $("#cancelbtn").attr('disabled', true);
-                                $("#loadbtn").attr('disabled', false);
-                                editflag = false;
-                                $("#categories_name").prop('disabled', false);
-                                $("#OldGstLabel").prop('hidden', true);
-                                $("#OldGst").prop('hidden', true);
-                                $("#OldGst").val("");
-                                $("#selectgst").val('-1');
-                                $("#selectgst").prop('disabled', true);
-
-
-                                //location.reload(true);
-                                ReloadTable();
+                            //console.log(Data);
+                            if (Data == "1") {
+                                swal('SubCategory Added Successfully', '', 'success').then(() => {
+                                    $('#getSubCategoryId').val('');
+                                    $("#getSubCategoryName").val('');
+                                    $("#getSubCategoryName").prop('disabled', true);
+                                    $("#getOldSubCategoryName").val('');
+                                    $("#OldSubCategoryLabel").attr('hidden', true);
+                                    $("#getOldSubCategoryName").attr('hidden', true);
+                                    $("#getHSNCode").val('');
+                                    $("#getHSNCode").prop('disabled', true);
+                                    $("#OldHSNCodeLabel").attr('hidden', true);
+                                    $("#OldHSNCode").attr('hidden', true);
+                                    $("#addcheck").prop("checked", false);
+                                    $("#addbtn").attr('disabled', true);
+                                    $("#savebtn").attr('disabled', true);
+                                    $("#cancelbtn").attr('disabled', true);
+                                    $("#loadbtn").attr('disabled', false);
+                                    editflag = false;
+                                    $("#categories_name").prop('disabled', false);
+                                    $("#OldGstLabel").prop('hidden', true);
+                                    $("#OldGst").prop('hidden', true);
+                                    $("#OldGst").val("");
+                                    $("#selectgst").val('-1');
+                                    $("#selectgst").prop('disabled', true);
+                                    ReloadTable();
+                                });
                             }
-                            else if (Data == "RECORDFOUND") {
+                            else if (Data == "-3") {
                                 console.log('RECORD FOUND');
-                                alert("Something Went Wrong");
+                                swal("Subcategory Already Exists", '', 'info');
                             }
-                            else if (Data == "COMMITFAIL") {
+                            else if (Data == "-1") {
                                 console.log('Commit Fail');
-                                alert("Something Went Wrong");
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "MORERECORD") {
+                            else if (Data == "-4") {
                                 console.log('More Then One Record Found');
-                                alert("Something Went Wrong");
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "ERRINCHEACKING") {
+                            else if (Data == "-5") {
                                 console.log('Error In Cheacking');
-                                alert("Something Went Wrong");
-
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "PARAMEMPTY") {
+                            else if (Data == "-6") {
                                 console.log("Parameters Empty");
-                                alert("Something Went Wrong");
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            else if (Data == "ERRORINUPDATING") {
-                                console.log("ERROR WHILE UPDATING");
-                                alert("Something Went Wrong");
+                            else if (Data == "-2") {
+                                console.log("ERROR WHILE inserting");
+                                swal("Something Went Wrong", '', 'error');
                             }
                             else {
                                 console.log("Other Then Flag");
-                                alert("Something Went Wrong");
+                                swal("Something Went Wrong", '', 'error');
                             }
-                            /*if (Data) {
 
-                                //location.reload(true);
-                                $('#getSubCategoryId').val('');
-
-                                $("#getSubCategoryName").val('');
-                                $("#getSubCategoryName").prop('disabled', true);
-                                $("#getHSNCode").val('');
-                                $("#getHSNCode").prop('disabled', true);
-                                $("#getOldSubCategoryName").val('');
-                                $("#OldSubCategoryLabel").attr('hidden', true);
-                                $("#getOldSubCategoryName").attr('hidden', true);
-
-                                $("#getHSNCode").val('');
-                                $("#OldHSNCodeLabel").attr('hidden', true);
-                                $("#OldHSNCode").attr('hidden', true);
-
-                                $("#addcheck").prop("checked", false);
-
-                                //$("#getOldSubCategoryName").val('');
-                                $("#addbtn").attr('disabled', true);
-                                $("#savebtn").attr('disabled', true);
-                                $("#cancelbtn").attr('disabled', true);
-                                $("#loadbtn").attr('disabled', false);
-                                editflag = false;
-                                $("#categories_name").prop('disabled', false);
-                                $("#selectgst").val("-1");
-                                $("#selectgst").prop('disabled', true);
-                                ReloadTable();
-                            }
-                            else {
-                                alert('Some Thing Went Wrong');
-                            }*/
                         }
                     });
                 }
                 else {
-                    alert('Please Fill All The Fields || Select Category');
+                    swal("Fields Empty", 'Please Fill All The Fields Of New Subcategory', 'info');
                 }
             });
 
@@ -555,18 +434,13 @@
 
                 if (sel_id != '-1') {
                     myobj = { cid: sel_id };
-                    console.log(myobj);
-                    console.log(JSON.stringify(myobj));
                     $.ajax({
                         type: "POST",
                         url: './ManageSubCategoryAjax/getSubCategories.php',
                         data: JSON.stringify(myobj),
                         dataType: "json",
                         success: function (Data) {
-                            //console.log("KIJJJ");
-                            console.log(Data);
-
-                            //console.log(JSON.stringify(Data));
+                            //console.log(Data);
                             if (Data[0].FLAG == "OK") {
                                 var x = Data;
                                 var appendInTable;
@@ -608,7 +482,6 @@
                             else {
                                 alert("Challan Id Not Found");
                             }
-                            //console.log(Data);
                         }
                     });
                 }
@@ -678,10 +551,8 @@
             });
 
             $("#cancelbtn").click(function () {
-                //location.reload(true);
                 let id = null;
                 let t = null;;
-                console.log(id);
                 if (id != undefined) {
                 }
                 else {
@@ -723,18 +594,13 @@
 
             if (sel_id != '-1') {
                 myobj = { cid: sel_id };
-                console.log(myobj);
-                console.log(JSON.stringify(myobj));
                 $.ajax({
                     type: "POST",
                     url: './ManageSubCategoryAjax/getSubCategories.php',
                     data: JSON.stringify(myobj),
                     dataType: "json",
                     success: function (Data) {
-                        //console.log("KIJJJ");
-                        console.log(Data);
-
-                        //console.log(JSON.stringify(Data));
+                        //console.log(Data);
                         if (Data[0].FLAG == "OK") {
                             var x = Data;
                             var appendInTable;
@@ -774,15 +640,15 @@
                             }
                         }
                         else {
-                            alert("Challan Id Not Found");
+                            swal("Something Went Wrong", '', 'error');
                         }
-                        //console.log(Data);
                     }
                 });
             }
             else {
-                alert('Please Select Category');
+                swal('Please Select Category', '', 'info');
             }
+
 
         }
 

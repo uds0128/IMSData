@@ -10,7 +10,10 @@
     
     if($subcategory_name != '' && $category_id != '-1' && $hsncode != '' && $gst != '')
     {
-        $checkrecordalreadyexists = mysqli_query($conn, "SELECT COUNT(1) AS noofrecord FROM subcategories where subcategory_name = '".$subcategory_name."' and category_id = ".$category_id." and ProductHSNCode = '".$hsncode."' and ProductGST=".$gst." and subcategories.active_status  = true");
+        $subcategory_name = ucwords(strtolower($subcategory_name));
+        $subcategory_name = trim(preg_replace('/\s+/',' ', $subcategory_name));
+        
+        $checkrecordalreadyexists = mysqli_query($conn, "SELECT COUNT(1) AS noofrecord FROM subcategories where subcategory_name = '".$subcategory_name."' and category_id = ".$category_id);
         //echo $checkrecordalreadyexists;
         if($checkrecordalreadyexists)
         {   
@@ -18,43 +21,49 @@
             
             if($row['noofrecord'] == 0)
             {
-                mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
+                mysqli_autocommit($conn, false);
+
                 $query = "INSERT INTO subcategories (subcategory_name, category_id, ProductHSNCode, ProductGST) VALUES ('".$subcategory_name."','".$category_id."','".$hsncode."', ".$gst.")";
                 $result = mysqli_query($conn, $query);
 
                 if($result)
                 {
-                    if(!mysqli_commit($conn))
+                    if(mysqli_commit($conn))
                     {
-                        echo 'COMMITFAIL';
+                        mysqli_autocommit($conn, true);
+                        echo '1'; // 1=>success
                     }
                     else
                     {   
-                        echo "OKK";
+                        mysqli_rollback($conn);
+                        mysqli_autocommit($conn, true);
+                        die('-1'); // -1=>commit fail
                     }
                 }
                 else
                 {
-                    echo "ERRORINUPDATING";
+                    mysqli_rollback($conn);
+                    mysqli_autocommit($conn, true);
+                    die('-2'); // -2=>err in result
                 }
             }
             else if($row['noofrecord'] == 1)
             {
-                echo "RECORDFOUND";
+                die('-3'); // -3=>record found
             }
             else
             {
-                echo "MORERECORD";
+                die('-4'); // -4=>more then one record or err
             }
         }
         else
         {
-            echo "ERRINCHEACKING";
+            die('-5'); // -5=>err while checking
         }
     }
     else
     {
-        echo "PARAMEMPTY";
+        die('-6'); // -6=>parameter empty
     }
 
 ?>

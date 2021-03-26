@@ -12,6 +12,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
     <style>
         .old-category:disabled {
             background-color: lightslategrey;
@@ -193,7 +195,6 @@
                 let id = $(this).attr("cid");
                 let t = $(this);
 
-
                 if (id != '') {
                     let myobj = { cid: id };
                     $.ajax({
@@ -203,6 +204,8 @@
                         success: function (Data) {
                             console.log(Data);
                             if (Data) {
+
+
                                 $('#OldCategoryId').val(id);
                                 $("#CategoryName").val(Data);
                                 $("#OldCategoryLabel").attr('hidden', false);
@@ -231,16 +234,44 @@
                         url: 'editCategory.php',
                         data: JSON.stringify(myobj),
                         success: function (Data) {
-                            console.log(Data);
+                            //console.log(Data);
                             if (Data) {
-                                $('#OldCategoryId').val('');
-                                $("#CategoryName").val('');
-                                $("#OldCategoryLabel").attr('hidden', true);
-                                $("#OldCategoryName").attr('hidden', true);
-                                $("#OldCategoryName").val('');
-                                $("#addbtn").attr('disabled', false);
-                                $("#savebtn").attr('disabled', true);
-                                location.reload(true);
+
+                                if (Data == '1') {
+                                    swal('Categoey Updated Successfully', '', 'success').then(()=>{location.reload(true)});
+                                }
+                                else if (Data = '-3') {
+                                    swal('Category Already Exists', '', 'info');
+                                }
+                                else if (Data = '-1') {
+                                    swal('Something Went Wrong', '', 'error');
+                                }
+                                else if (Data = '-2') {
+                                    swal('Something Went Wrong', '', 'error');
+                                }
+                                else if (Data = '-3') {
+                                    swal('Something Went Wrong', '', 'error');
+                                }
+                                else if (Data = '-4') {
+                                    swal('Something Went Wrong', '', 'error');
+                                }
+                                else if (Data = '-5') {
+                                    swal('Something Went Wrong', '', 'error');
+                                }
+                                else if (Data = '-6') {
+                                    swal('Something Went Wrong', '', 'error');
+                                }
+                                else {
+                                    swal('Something Went Wrong', '', 'error');
+                                }
+
+                                //$('#OldCategoryId').val('');
+                                //$("#CategoryName").val('');
+                                //$("#OldCategoryLabel").attr('hidden', true);
+                                //$("#OldCategoryName").attr('hidden', true);
+                                //$("#OldCategoryName").val('');
+                                //$("#addbtn").attr('disabled', false);
+                                //$("#savebtn").attr('disabled', true);
                             }
                             else {
                                 alert("Something Went Wrong");
@@ -257,30 +288,59 @@
             $('#addbtn').on('click', function () {
                 let category_name = $('#CategoryName').val();
 
-                if(category_name != '')
-                {
-                    myobj = {cname : category_name};
+                if (category_name != '') {
+                    myobj = { cname: category_name };
                     $.ajax({
                         type: "POST",
                         url: 'addCategory.php',
                         data: JSON.stringify(myobj),
                         success: function (Data) {
-                            if(Data)
-                            {
-                                location.reload(true);
+                            //console.log(Data);
+
+                            if (Data == '1') {
+                                swal('Category Added', '', 'success');
+                                $('#CategoryName').val('');
                             }
-                            else
-                            {   
-                                alert('Some Thing Went Wrong');
+                            else if (Data == '-4') {
+                                swal('Category Alredy Exists', '', 'info');
+                                $('#CategoryName').val('');
+                            }
+                            else if (Data == '-1') {
+                                console.log('commit fail');
+                                swal('Oops!', 'Something Went Wrong!', 'error');
+                            }
+                            else if (Data == '-2') {
+                                console.log('transflag err');
+                                swal('Oops!', 'Something Went Wrong!', 'error');
+                            }
+                            else if (Data == '-3') {
+                                console.log('err in insert query');
+                                swal('Oops!', 'Something Went Wrong!', 'error');
+                            }
+                            else if (Data == '-5') {
+                                console.log('MORE THen one record or No record found');
+                                swal('Oops!', 'Something Went Wrong!', 'error');
+                            }
+                            else if (Data == '-6') {
+                                console.log('err in checking query');
+                                swal('Oops!', 'Something Went Wrong!', 'error');
+                            }
+                            else if (Data == '-7') {
+                                console.log('categoryname name empty');
+                                swal('Oops!', 'Something Went Wrong!', 'error');
+                            }
+                            else {
+                                console.log('Other Then Flag Recived');
+                                swal('Oops!', 'Something Went Wrong!', 'error');
                             }
                         }
                     });
                 }
-                else
-                {
+                else {
                     alert('Please Fill All The Fields');
                 }
             });
+
         });
     </script>
 </body>

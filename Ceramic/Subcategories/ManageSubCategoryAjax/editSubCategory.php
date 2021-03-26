@@ -13,50 +13,59 @@
 
     if($sc_id != '' && $subcategory_name != '' && $hsncode != '' && $gst != '')
     {
-        $cheakforalreadyexists = mysqli_query($conn, "SELECT COUNT(1) AS noofrecord FROM subcategories where subcategory_name = '".$subcategory_name."' and ProductHSNCode='".$hsncode."' and ProductGST = ".$gst);
+        $subcategory_name = ucwords(strtolower($subcategory_name));
+        $subcategory_name = trim(preg_replace('/\s+/',' ', $subcategory_name));
+
+        $cheakforalreadyexists = mysqli_query($conn, "SELECT COUNT(1) AS noofrecord FROM subcategories where subcategory_name = '".$subcategory_name."'");
         if($cheakforalreadyexists)
         {
-            mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
+            
             $row = $cheakforalreadyexists->fetch_assoc();
             $noofrecord = $row['noofrecord'];
 
             if($noofrecord == 0)
             {
+                mysqli_autocommit($conn, false);
                 $query = "UPDATE subcategories set subcategory_name ='".$subcategory_name."', ProductHSNCode='".$hsncode."', ProductGST=".$gst."  WHERE subcategory_id=".$sc_id;
                 $result = mysqli_query($conn, $query);
 
                 if($result)
                 {   
-                    if(!mysqli_commit($conn))
+                    if(mysqli_commit($conn))
                     {
-                        echo "COMMITFAIL";
+                        mysqli_autocommit($conn, true);
+                        echo "1"; // 1=>success
                     }
                     else
                     {
-                        echo "OKK";
+                        mysqli_rollback($conn);
+                        mysqli_autocommit($conn, true);
+                        die("-1");  // -1=>commit fail
                     }
                 }
                 else
                 {
-                    echo "ERRORINUPDATING";
+                    mysqli_rollback($conn);
+                    mysqli_autocommit($conn, true);
+                    die('-2'); // -2=>err in update query
                 }
             }
             else if($noofrecord == 1)
             {
-                echo "RECORDFOUND";
+                die('-3'); // -3=>record found
             }
             else
             {
-                echo "MORERECORD";
+                die('-4'); // -4=>morethen one record or err
             }
         }
         else
         {
-            echo "ERRINCHEACKING";
+            die('-5'); // -5=>err in checking query
         }
     }
     else
     {
-        echo "PARAMEMPTY";
+        die(-6); // -6=>parameter empty
     }
 ?>
