@@ -76,7 +76,6 @@
                         </div>
 
 
-
                         <div class="row mt-4">
                             <div class="col-md-6">
                                 <button class='btn btn-primary' id='searchbtn'>Search</button>
@@ -121,11 +120,7 @@
         $("#brandnametbl tbody").empty();
 
         if ($("#selectbrandname").val() != "-1") {
-
-            //$("#selectbrandname").append(new Option("Select", "-1"));
-
             var brandid = $("#selectbrandname").val();
-            console.log(brandid);
 
             $.ajax({
                 type: "POST",
@@ -153,7 +148,7 @@
                                 '<td>' + Data[i].brandid + '</td>' +
                                 '<td>' + Data[i].brandname + '</td>' +
                                 '<td> <button class="btn btn-primary editbtn" brandid="' + Data[i].brandid + '" brandname="' + Data[i].brandname + '"> Edit </button> ' +
-                                '<button class="btn btn-' + btncolor + ' activestatusbtn" brandid="' + Data[i].brandid + '" brandname="' + Data[i].brandname + '"> ' + btntext + '</button>' +
+                                '<button class="btn btn-' + btncolor + ' activestatusbtn" brandid="' + Data[i].brandid + '" brandname="' + Data[i].brandname + '" recstatus='+ Data[i].recstatus +'> ' + btntext + '</button>' +
                                 '</td>' +
                                 '</tr>'
                             );
@@ -163,21 +158,21 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong' , '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong' , '', 'error');
                     }
                 },
                 error: function (Data) {
-                    console.log(Data);
-                    alert('Something Went Wrong');
+                    //console.log(Data);
+                    swal('Something Went Wrong' , '', 'error');
                 }
             });
         }
         else {
-            alert('Please Select Company Name');
+            swal('Please Select Category' , '', 'warning');
         }
 
     });
@@ -208,14 +203,8 @@
 
     $("#savebtn").on('click', function () {
         $("#addCheckbox").prop('disabled', false);
-        //$("#getBrandName").attr('brandid', brandid);
-        // $("#getBrandName").val("");
-        //$("#getBrandName").prop('disabled', true);
         var brandid = $("#getBrandName").attr('brandid');
-        console.log(brandid);
         var brandname = $("#getBrandName").val();
-        brandname = brandname.toUpperCase();
-        console.log(brandname);
 
         if ($("#getBrandName").val() != "" && brandid != "") {
             $.ajax({
@@ -223,50 +212,47 @@
                 url: './AddNewBrandNameAjax/updateBrandName.php',
                 data: { brandname: brandname, brandid: brandid },
                 success: function (Data) {
-                    console.log(Data);
+                    //console.log(Data);
                     if (Data == "1") {
-                        //alert("Brand Name : " + brandname + " Inserted Successfully");
                         $("#getBrandName").val("");
-                        alert("Brand Name Updated Succesfully");
+                        swal("Brand Name Updated Succesfully", '', 'success');
                         ReloadOptions();
                         $("#getBrandName").prop('disabled', true);
                         $("#addCheckbox").prop('disabled', false);
 
                     }
-                    else if (Data == "-4") {
-                        alert("Brand Name Already Exists");
+                    else if (Data == "-3") {
+                        swal("Brand Name Already Exists", '', 'info');
                         $("#getBrandName").val("");
                     }
                     else if (Data == "-1") {
-                        console.log("Error In Executing Insert Query");
-                        alert('Something Went Wrong');
+                        console.log("Error In Commit");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else if (Data == "-2") {
-                        console.log(" Error In Commit");
-                        alert('Something Went Wrong');
+                        console.log("Error In Insert Executing Query");
+                        swal('Something Went Wrong', '', 'error');
                     }
-                    else if (Data == "-3") {
-                        console.log("Error In Checking Record");
-                        alert('Something Went Wrong');
-
+                    else if (Data == "-4") {
+                        console.log("More then one Row FOund or err");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else if (Data == "-5") {
-                        console.log("More then one Row FOund");
-                        alert('Something Went Wrong');
+                        console.log("Error In Checking Record");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log("Other Flag Error");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Error In Update Brand Name Ajax Call");
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
         else {
-            //alert('Please Fill Brand Name');
             swal("Empty", "Please Fill Brand Name", "info");
         }
 
@@ -276,9 +262,6 @@
 
     $("#addbtn").click(function () {
         var brandname = $("#getBrandName").val();
-        brandname = brandname.toUpperCase();
-        //brandname.toUppercase();
-        console.log(brandname);
 
         if (brandname != "") {
             $.ajax({
@@ -286,47 +269,45 @@
                 url: "./AddNewBrandNameAjax/insertBrandNamesIntoDatabase.php",
                 data: { brandname: brandname },
                 success: function (Data) {
-                    console.log(Data);
+                    //console.log(Data);
                     if (Data == "1") {
-                        alert("Brand Name : " + brandname + " Inserted Successfully");
+                        swal("Brand Name : " + brandname + " Inserted Successfully", '', 'success');
                         $("#getBrandName").val("");
                         ReloadOptions();
                     }
-                    else if (Data == "-4") {
-                        alert("Brand Already Exists");
+                    else if (Data == "-3") {
+                        swal("Record Already Exists", '', 'info');
                         $("#getBrandName").val("");
                     }
                     else if (Data == "-1") {
-                        console.log("Error In Executing Insert Query");
-                        alert('Something Went Wrong');
+                        console.log("Error In Commit");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else if (Data == "-2") {
-                        console.log(" Error In Commit");
-                        alert('Something Went Wrong');
+                        console.log("Error In Insert Executing Query");
+                        swal('Something Went Wrong', '', 'error');
                     }
-                    else if (Data == "-3") {
-                        console.log("Error In Checking Record");
-                        alert('Something Went Wrong');
-
+                    else if (Data == "-4") {
+                        console.log("More then one Row FOund");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else if (Data == "-5") {
-                        console.log("More then one Row FOund");
-                        alert('Something Went Wrong');
-
+                        console.log("Error In Checking Record");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log("Other Flag Error");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
         else {
-            alert('Please Fill Brand Name');
+            swal('Fields Empty', 'Please Fill Brand Name', 'warning');
         }
 
         Refresh();
@@ -362,6 +343,62 @@
         Refresh();
     });
 
+    $('#brandnametbl tbody').on('click', '.activestatusbtn', function (){
+        var brandid = $(this).attr('brandid');
+        var recstatus = $(this).attr('recstatus');
+        var btnref = $(this);
+        console.log(brandid);
+        console.log(recstatus);
+
+        $.ajax({
+            type: 'POST',
+            url: './AddNewBrandNameAjax/changeActiveStatusOfBrand.php',
+            data: {brandid : brandid, recstatus:recstatus},
+            success: function(Data){
+                //console.log(Data);
+                if(Data == '1'){
+                    swal('Brands Active Status Changed', '', 'success');
+                    var oldbtnclass='';
+                    var btnclass='';
+                    var attrrecstatus='';
+                    var btntext = '';
+                    if(recstatus == '1'){
+                        oldbtnclass = 'btn-danger'
+                        btnclass = 'btn-success';
+                        attrrecstatus = '0';
+                        btntext = 'Active';
+                    }
+                    else{
+                        oldbtnclass = 'btn-success';
+                        btnclass = 'btn-danger';
+                        attrrecstatus = '1';
+                        btntext = 'Deactive';
+                    }
+                    btnref.removeClass(oldbtnclass);
+                    btnref.addClass(btnclass);
+                    btnref.attr('recstatus', attrrecstatus);
+                    btnref.html(btntext);
+                }
+                else if(Data == '-1'){
+                    console.log('Commit fail');
+                    swal('Something Went Wrong' , '', 'error');
+                }
+                else if(Data == '-2'){
+                    console.log('err in update query');
+                    swal('Something Went Wrong' , '', 'error');
+                }
+                else{
+                    console.log('Other Flag');
+                    swal('Something Went Wrong' , '', 'error');
+                }
+            },
+            error: function(Data){
+                console.log('Error In ./AddNewBrandNameAjax/changeActiveStatusOfBrand.php   AJAX Call');
+                swal('Something Went Wrong' , '', 'error');
+            }
+        });
+    });
+
     function ReloadOptions() {
 
         $("#selectbrandname").empty();
@@ -381,16 +418,16 @@
                 }
                 else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                     console.log("ERROR IN EXECUTING QUERY");
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
                 else {
                     console.log('OTHER THEN FLAG');
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
             },
             error: function (Data) {
-                console.log(Data);
-                alert('Something Went Wrong');
+                //console.log(Data);
+                swal('Something Went Wrong', '', 'error');
             }
         });
 

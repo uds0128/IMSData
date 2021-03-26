@@ -1,7 +1,7 @@
 <?php
     include('./config.php');
 
-    $query = "SELECT * FROM subcategories  join categories where subcategories.category_id = categories.category_id and category_name='".$_POST['catname']."'";
+    $query = "SELECT * FROM subcategories  join categories where subcategories.category_id = categories.category_id and category_name='".$_POST['catname']."' and subcategories.active_status = true";
     $result = mysqli_query($conn, $query);
 
     $dataToBeSent = array();

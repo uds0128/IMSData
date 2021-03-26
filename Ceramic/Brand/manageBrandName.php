@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <style>
         .old-category:disabled {
             background-color: lightslategrey;
@@ -155,20 +156,19 @@
 
                                 $("#subcategory_name").append(new Option(Data[i].subcategory_name, Data[i].subcategoryid));
                             }
-                            //$("#selectbrandname").prop('disabled', false);
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else {
                             console.log('OTHER THEN FLAG');
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 });
             }
@@ -188,7 +188,7 @@
                 ReloadBrandNameOptions();
             }
             else {
-                alert('Please Select Category Or Subcategory');
+                swal('Please Select Category Or Subcategory', '', 'warning');
             }
         });
 
@@ -220,79 +220,125 @@
             $("#data_table tbody").empty();
         });
 
-        $("#addbrandbtn").click(function () {
+        $("#addbrandbtn").click(function () {   
             var subcategoryid = $("#subcategory_name").val();
             var brandid = $("#selectbrandname").val();
-            console.log(subcategoryid);
-            console.log($("#subcategory_name").children("option:selected").text() + " to " + $("#selectbrandname").children("option:selected").text());
+           
             if (brandid != "-1" && subcategoryid != "-1") {
                 $.ajax({
                     type: "POST",
                     url: "./ManageBrandNameAjax/mapBrandName.php",
                     data: {subcategoryid: subcategoryid, brandid: brandid},
                     success: function(Data){
-                        console.log("Hello");
-                        console.log(Data);
-                        console.log("KKKk");
+
+                        //console.log(Data);
+
                         if(Data == "1")
                         {
-                            alert("Successfully Assigned " + $("#subcategory_name").children("option:selected").text() + " to " + $("#selectbrandname").children("option:selected").text());
-                            ReloadTable();
+                            swal("Successfully Assigned " + $("#subcategory_name").children("option:selected").text() + " to " + $("#selectbrandname").children("option:selected").text(), '', 'success').then(()=>{ReloadTable();});
+                            
                             $("#selectbrandname").val("-1");
-                        }
-                        else if(Data == "0")
-                        {
-                            console.log("Brand Already Mapped With Subcategory");
-                            alert("Brand Already Mapped With Subcategory");
-                        }
-                        else if (Data == "-1") {
-                            console.log("Error In Cheacking Query");
-                            alert("Something Went Wrong");
-                        }
-                        else if (Data == "-2") {
-                            console.log("More Then One Record Found");
-                            alert("Something Went Wrong");
                         }
                         else if(Data == "-3")
                         {
+                            console.log("Brand Already Mapped With Subcategory");
+                            swal("Brand Already Mapped With Subcategory",'', 'info');
+                        }
+                        else if (Data == "-1") {
+                            console.log("Commit Failuier");
+                            swal('Something Went Wrong', '', 'error');
+                        }
+                        else if (Data == "-2") {
                             console.log("Error While Mapping SubcategoryId With Brand");
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else if(Data == "-4")
                         {
-                            console.log("Commit Failuier");
-                            alert("Something Went Wrong");
+                            console.log("More Then One Record Found");
+                            swal('Something Went Wrong', '', 'error');
+                        }
+                        else if(Data == "-5")
+                        {
+                            console.log("Error In Cheacking Query");
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else {
                             console.log("Other Flag Error");
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         }
-                        /*else if(Data == "-1")
-                        {
-                            console.log("Error In Query Execution");
-                            alert("Something Went Wrong");
-                        }
-                        else if(Data == "-2")
-                        {
-                            console.log("Commit Failuire");
-                            alert("Something Went Wrong");
-                        }
-                        else
-                        {
-                            console.log("Other Flag Error");
-                            alert("Something Went Wrong");
-                        }*/
-
                     },
                     error: function(Data){
                         console.log('Error While Mapping Subcategory with Brand Ajax Call');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 });
             }
             else {
-                alert('Please Select Brand Name');
+                swal('Please Select Brand Name', '', 'warning');
             }
+        });
+
+        $('#tblbody').on('click', '.changeMapStatus', function(){
+            var brandmapid = $(this).attr('brandmapid');
+            var recstatus  = $(this).attr('recstatus');
+            var btnref = $(this);
+            console.log(brandmapid);
+
+            $.ajax({
+                type: 'POST',
+                url: './ManageBrandNameAjax/changeMapStatus.php',
+                data: {brandmapid:brandmapid, recstatus:recstatus},
+                success: function(Data){
+                    console.log(Data);
+                    if(Data == '1'){
+                        var btntext = '';
+                        var oldbtnclass = '';
+                        var btnclass = '';
+
+                        if(recstatus == 1){
+                            btntext = 'Map';
+                            newrecstatus = '0';
+                            btnclass = 'btn-success';
+                            oldbtnclass = 'btn-danger';
+                        }
+                        else{
+                            btntext = 'Unmap';
+                            newrecstatus = '1';
+                            btnclass = 'btn-danger';
+                            oldbtnclass = 'btn-success';
+                        }
+                        btnref.html(btntext);
+                        btnref.attr('recstatus', newrecstatus);
+                        btnref.removeClass(oldbtnclass);
+                        btnref.addClass(btnclass);
+                        
+                        if(recstatus == 1){
+                            swal('Brand Unmaped', '', 'warning');
+                        }
+                        else{
+                            swal('Successfully Mapped Brand With Selected Subcategory', '', 'success');
+                        }
+
+                    }
+                    else if(Data == '-1'){
+                        console.log('commit fail');
+                        swal('Something Went Wrong', '', 'error');
+                    }
+                    else if(Data == '-2'){
+                        console.log('err in update query');
+                        swal('Something Went Wrong', '', 'error');
+                    }
+                    else{
+                        console.log('Other Flag Recived');
+                        swal('Something Went Wrong', '', 'error');
+                    }
+                    
+                },
+                error: function(Data){
+                    console.log("Error In  ./ManageBrandNameAjax/changeMapStatus.php   Ajax Call");
+                    swal('Something Went Wrong', '', 'error');
+                }
+            });
         });
 
         function ReloadOptions() {
@@ -314,16 +360,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
-                    console.log(Data);
-                    alert('Something Went Wrong');
+                    //console.log(Data);
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
 
@@ -348,16 +394,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
-                    console.log(Data);
-                    alert('Something Went Wrong');
+                    //console.log(Data);
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -381,16 +427,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -412,12 +458,25 @@
 
                         for(var i=1; i<n; i++)
                         {
+                            var brandmapid = Data[i].brandmapid;
+                            var brandname   = Data[i].brandname;
+                            var recstatus   = Data[i].recstatus;
+                            var btncolor    = '';
+                            if(recstatus == 1){
+                                btncolor = 'btn-danger';
+                                btntext  = 'Unmap';
+                            }
+                            else{
+                                btncolor = 'btn-success';
+                                btntext  = 'Map';
+                            }
+
                             $("#data_table tbody:last-child").append(
                                 '<tr>' +
                                     '<td>' + i + '</td>' +
-                                    '<td>' + Data[i].brandname + '</td>' +
+                                    '<td>' + brandname + '</td>' +
                                     '<td>' + 
-                                        '<button class="btn btn-primary"> Remove </button>' +
+                                        '<button class="btn '+ btncolor +' changeMapStatus" brandmapid='+brandmapid+'  recstatus='+recstatus+'> '+ btntext +' </button>' +
                                     '</td>' +
                                 '</tr>'
                             );
@@ -426,22 +485,22 @@
                     else if(Data[0].FLAG == "RECORDNOTFOUND")
                     {
                         console.log("RECORD NOT FOUND");
-                        alert("No Record Found");
+                        swal("No Brands Are Mapped With Selected Category And Subcategory", '', 'info');
                     }
                     else if(Data[0].FLAG == 'ERRORINEXECUTINGQUERY')
                     {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else
                     {
                         console.log('Other Then Flag');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log('Error In Ajax Call ' + Data);
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
 

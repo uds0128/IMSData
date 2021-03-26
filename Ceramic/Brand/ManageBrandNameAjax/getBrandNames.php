@@ -1,7 +1,7 @@
 <?php
     include('./config.php');
 
-    $query = "SELECT * FROM BRANDNAMES";
+    $query = "SELECT * FROM BRANDNAMES WHERE RecStatus = true";
     $result = mysqli_query($conn, $query);
 
     $dataToBeSent = array();
@@ -14,9 +14,8 @@
         {
             $brandid = $row['BrandId'];
             $brandname = $row['BrandName'];
-            $recstatus = $row['RecStatus'];
 
-            $obj = array('brandid' => $brandid, 'brandname' => $brandname, 'recstatus' => $recstatus);
+            $obj = array('brandid' => $brandid, 'brandname' => $brandname);
             $dataToBeSent[] = $obj;
         }
         echo json_encode($dataToBeSent);
