@@ -4,6 +4,9 @@
     $gradeid = $_POST['gradeid'];
     $gradetext = $_POST['gradetext'];
 
+    $gradetext = ucwords(strtolower($gradetext));
+    $gradetext = trim(preg_replace('/\s+/',' ', $gradetext));
+
     if($gradeid != '' && $gradetext != '')
     {
         $cheackforgradetext = mysqli_query($conn, "SELECT COUNT(1) AS noofrecord FROM Grades WHERE GradeText = '".$gradetext."'");
@@ -14,40 +17,45 @@
 
             if($noofrecord == 0)
             {
-                mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
+                mysqli_autocommit($conn, false);
                 $editgradetext = mysqli_query($conn, "UPDATE Grades SET GradeText = '".$gradetext."' WHERE GradeId = ".$gradeid);
                 if($editgradetext)
                 {
-                    if(!mysqli_commit($conn))
+                    if(mysqli_commit($conn))
                     {
-                        echo "-4"; // -4 ==> Commit Failure
+                        mysqli_autocommit($conn, true);
+                        echo "1";
                     }
                     else
                     {
-                        echo "1";
+                        mysqli_rollback($conn);
+                        mysqli_autocommit($conn, true);
+                        die("-4"); // -4 ==> Commit Failure
                     }
                 }
                 else
                 {
-                    echo "-3"; // -3 ==> Error In Updating Grade Text
+                    mysqli_rollback($conn);
+                    mysqli_autocommit($conn, true);
+                    die("-3"); // -3 ==> Error In Updating Grade Text
                 }
             }
             else if($noofrecord == 1)
             {
-                echo '-5'; // -4 ==> Same Grade Text Available In Database
+                die('-5'); // -5 ==> Same Grade Text Available In Database
             }
             else
             {
-                echo '-6'; // -5 ==> Error In finding No Of Record
+                die('-6'); // -6 ==> Error In finding No Of Record
             }
         }
         else
         {
-            echo "-2"; // -2 ==> Error In Cheacking For Same value available in Database or not
+            die("-2"); // -2 ==> Error In Cheacking For Same value available in Database or not
         }
     }
     else
     {
-        echo '-1'; // -1 => Parameter Empty
+        die('-1'); // -1 => Parameter Empty
     }
 ?>

@@ -458,7 +458,7 @@
 
                         for(var i=1; i<n; i++)
                         {
-                            var brandmapid = Data[i].brandmapid;
+                            var brandmapid  = Data[i].brandmapid;
                             var brandname   = Data[i].brandname;
                             var recstatus   = Data[i].recstatus;
                             var btncolor    = '';

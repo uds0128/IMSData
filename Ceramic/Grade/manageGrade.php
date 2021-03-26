@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 
 <body>
@@ -83,7 +84,7 @@
                         <!-- <button id='savebtn' class='btn btn-primary mt-3' disabled>Save</button> -->
                         <!-- <button id='cancelbtn' class='btn btn-primary mt-3' disabled>Cancel</button> -->
                         <!-- <button id='loadbtn' class='btn btn-primary mt-3'>Load</button> -->
-                        
+
                         <div class="row mt-5">
 
                         </div>
@@ -121,7 +122,7 @@
             if (cat_name != "-1") {
                 $.ajax({
                     type: "POST",
-                    url: './ManageBrandNameAjax/getSubCategories.php',
+                    url: './ManageGradeAjax/getSubCategories.php',
                     data: { catname: cat_name },
                     dataType: 'json',
                     success: function (Data) {
@@ -135,16 +136,16 @@
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else {
                             console.log('OTHER THEN FLAG');
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 });
             }
@@ -164,7 +165,7 @@
                 ReloadGradeTextOptions();
             }
             else {
-                alert('Please Select Category Or Subcategory');
+                swal('Please Select Category Or Subcategory', '', 'warning');
             }
         });
 
@@ -207,90 +208,113 @@
             if (gradeid != "-1" && subcategoryid != "-1") {
                 $.ajax({
                     type: "POST",
-                    url: "./ManageGrade/mapGradeWithSubcategory.php",
+                    url: "./ManageGradeAjax/mapGradeWithSubcategory.php",
                     data: { subcategoryid: subcategoryid, gradeid: gradeid },
                     success: function (Data) {
                         console.log(Data);
                         if (Data == "1") {
-                            alert("Successfully Assigned " + $("#subcategory_name").children("option:selected").text() + " to " + $("#selectgrade").children("option:selected").text());
+                            swal("Successfully Maped Grade", '', 'success');
                             ReloadTable();
                             $("#selectgrade").val("-1");
                         }
-                        else if(Data == "0")
-                        {
+                        else if (Data == "0") {
                             console.log("Grade Already Mapped With Subcategory");
-                            alert("Grade Already Mapped With Subcategory");
+                            swal("Grade Already Mapped With Subcategory", '', 'info');
                         }
                         else if (Data == "-1") {
                             console.log("Error In Cheacking Query");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else if (Data == "-2") {
                             console.log("More Then One Record Found");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
-                        else if(Data == "-3")
-                        {
+                        else if (Data == "-3") {
                             console.log("Error While Mapping SubcategoryId With Grade");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
 
                         }
-                        else if(Data == "-4")
-                        {
+                        else if (Data == "-4") {
                             console.log("Commit Failuier");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
 
                         }
                         else {
                             console.log("Other Flag Error");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Mapping Subcategory Id with Grade Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 });
             }
             else {
-                alert('Please Select Brand Name');
+                swal("Please Select Brand Name", '', 'warning');
             }
         });
 
-       /* function ReloadOptions() {
-
-            $("#categories_name").empty();
-            $("#categories_name").append(new Option("Select", "-1"));
+        $('#tblbody').on('click', '.activestatus', function(){
+            var grademapid = $(this).attr('grademapid');
+            var recstatus  = $(this).attr('recstatus');
+            var rowref = $(this);
 
             $.ajax({
-                type: "POST",
-                url: "./ManageBrandNameAjax/getBrandNames.php",
-                dataType: "json",
-                success: function (Data) {
-                    if (Data[0].FLAG == 'OKK') {
-                        var n = Data.length;
-                        for (var i = 1; i < n; i++) {
-                            $("#categories_name").append(new Option(Data[i].brandname, Data[i].gradeid));
+                type: 'POST',
+                url: './ManageGradeAjax/changeActiveStatus.php',
+                data: {grademapid: grademapid, recstatus: recstatus},
+                success: function(Data){
+                    if(Data == '1'){
+
+                        var btncolor = '';
+                        var oldbtncolor = '';
+                        var btntext = '';
+
+                        if(recstatus == 1){
+                            btntext = 'Map';
+                            btncolor = 'btn-success';
+                            oldbtncolor = 'btn-danger';  
                         }
-                        $("#categories_name").prop('disabled', false);
+                        else{
+                            btntext = 'Unmap';
+                            btncolor = 'btn-danger';
+                            oldbtncolor = 'btn-success';  
+                        }
+
+                        rowref.removeClass(oldbtncolor);
+                        rowref.addClass(btncolor);
+                        rowref.html(btntext);
+                        
+                        if(recstatus == 1){
+                            rowref.attr('recstatus', '0');
+                            swal('Grade Unmaped', '', 'warning');
+                        }
+                        else{
+                            rowref.attr('recstatus', '1');
+                            swal('Grade Maped', '', 'success');
+                        }
                     }
-                    else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
-                        console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                    else if(Data == '-1'){
+                        console.log('commit fail');
+                        swal('Something Went Wrong', '', 'error');
                     }
-                    else {
-                        console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                    else if(Data == '-2'){
+                        console.log('err in query');
+                        swal('Something Went Wrong', '', 'error');
+                    }
+                    else{
+                        console.log('other flag recieved');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
-                error: function (Data) {
-                    console.log(Data);
-                    alert('Something Went Wrong');
+                error: function(Data){
+                    console.log('err in ./ManageGradeAjax/changeActiveStatus.php Ajax Call');
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
+        });
 
-        }
-*/
         function ReloadCategoriesOptions() {
 
             $("#categories_name").empty();
@@ -298,7 +322,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "./ManageBrandNameAjax/getCategories.php",
+                url: "./ManageGradeAjax/getCategories.php",
                 dataType: "json",
                 success: function (Data) {
                     if (Data[0].FLAG == 'OKK') {
@@ -310,16 +334,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '' , 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '' , 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '' , 'error');
                 }
             });
         }
@@ -331,7 +355,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "./ManageGrade/getGrades.php",
+                url: "./ManageGradeAjax/getGrades.php",
                 dataType: 'json',
                 success: function (Data) {
                     if (Data[0].FLAG == 'OKK') {
@@ -343,16 +367,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '' , 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '' , 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '' , 'error');
                 }
             });
         }
@@ -361,56 +385,71 @@
             $("#tblbody").empty();
             var subcategoryid = $("#subcategory_name").val();
 
-            if(subcategoryid != "-1")
-            {
+            if (subcategoryid != "-1") {
                 $.ajax({
-                type: "POST",
-                url: "./ManageGrade/getGradesFromSubcategory.php",
-                data: { subcatid: subcategoryid },
-                dataType: 'json',
-                success: function (Data) {
-                    console.log(Data);
-                    if (Data[0].FLAG == "OKK") {
-                        var n = Data.length;
+                    type: "POST",
+                    url: "./ManageGradeAjax/getGradesFromSubcategory.php",
+                    data: { subcatid: subcategoryid },
+                    dataType: 'json',
+                    success: function (Data) {
+                        console.log(Data);
+                        if (Data[0].FLAG == "OKK") {
+                            var n = Data.length;
 
-                        for (var i = 1; i < n; i++) {
-                            $("#data_table tbody:last-child").append(
-                                '<tr>' +
-                                '<td>' + i + '</td>' +
-                                '<td>' + Data[i].gradetext + '</td>' +
-                                '<td>' +
-                                '<button class="btn btn-danger"> Remove </button>' +
-                                '</td>' +
-                                '</tr>'
-                            );
+                            for (var i = 1; i < n; i++) {
+
+                                var grademapid   = Data[i].grademapid;
+                                var gradetext = Data[i].gradetext;
+                                var recstatus = Data[i].recstatus;
+                                var btncolor = '';
+                                var btntext = '';
+
+                                if (recstatus == 1) {
+                                    btncolor = 'btn-danger';
+                                    btntext = 'Unmap';
+                                }
+                                else {
+                                    btncolor = 'btn-success';
+                                    btntext = 'Map';
+                                }
+
+                                $("#data_table tbody:last-child").append(
+                                    '<tr>' +
+                                    '<td>' + i + '</td>' +
+                                    '<td>' + gradetext + '</td>' +
+                                    '<td>' +
+                                    '<button class="btn ' + btncolor + '  activestatus" recstatus="' + recstatus + '"  grademapid="'+ grademapid +'"> ' + btntext + ' </button>' +
+                                    '</td>' +
+                                    '</tr>'
+                                );
+                            }
                         }
+                        else if (Data[0].FLAG == "RECORDNOTFOUND") {
+                            console.log("RECORD NOT FOUND");
+                            swal("No Grades Are Maped With Selected Category And Subcategory", '', 'info');
+                        }
+                        else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
+                            console.log("ERROR IN EXECUTING QUERY");
+                            swal('Something Went Wrong', '' , 'error');
+                        }
+                        else {
+                            console.log('Other Then Flag');
+                            swal('Something Went Wrong', '' , 'error');
+                        }
+                    },
+                    error: function (Data) {
+                        console.log('Error In Ajax Call ' + Data);
+                        swal('Something Went Wrong', '' , 'error');
                     }
-                    else if (Data[0].FLAG == "RECORDNOTFOUND") {
-                        console.log("RECORD NOT FOUND");
-                        alert("No Record Found");
-                    }
-                    else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
-                        console.log("ERROR IN EXECUTING QUERY");
-                        alert("Something Went Wrong");
-                    }
-                    else {
-                        console.log('Other Then Flag');
-                        alert('Something Went Wrong');
-                    }
-                },
-                error: function (Data) {
-                    console.log('Error In Ajax Call ' + Data);
-                    alert('Something Went Wrong');
-                }
-            });
+                });
             }
-            else
-            {
-                alert("Please Select Category Or Subcategory");
+            else {
+                swal("Please Select Category Or Subcategory" , '', 'warning');
             }
-            
+
 
         }
+    
     });
 </script>
 

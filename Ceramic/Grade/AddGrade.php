@@ -11,6 +11,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/table-to-json@1.0.0/lib/jquery.tabletojson.min.js"
         integrity="sha256-H8xrCe0tZFi/C2CgxkmiGksqVaxhW0PFcUKZJZo1yNU=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>    
     <style>
         /* Chrome, Safari, Edge, Opera */
         input::-webkit-outer-spin-button,
@@ -45,7 +46,7 @@
                             <h3 class="card-title" style="color: white">Add Grade</h3>
                         </center>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="background-color: #8da9bd;">
                         <div class="row mt-4">
                             <div class="col-md-2">
                                 <label class="mt-1" for="">Select Grade : </label>
@@ -150,56 +151,56 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "./ManageGrade/addNewGradeInDatabase.php",
+                    url: "./AddGradeAjax/addNewGradeInDatabase.php",
                     data: {gradetext : gradetext},
                     success: function(Data){
                         if(Data == "1")
                         {
                             Reload();
                             ReloadSelectGrade();
-                            alert("Succesfully Inserted : " + gradetext + ".");
+                            swal("Grade Added Successfully", '', 'success');
                         }
-                        else if(Data == "0")
-                        {
-                            console.log("Record Exists For Given Grade Text");
-                            alert("Grade Already Exists In The Database");
-                        }   
                         else if(Data == "-1")
                         {
-                            console.log("Error In finding grade text exists or not in Data base");
-                            alert("Something Went Wrong");
-                        }
-                        else if(Data == "-2")
+                            console.log("Record Exists For Given Grade Text");
+                            swal("Grade Already Exists", '', 'info');
+                        }   
+                        else if(Data == "-5")
                         {
-                            console.log("Failes To Insert Into Grades");
-                            alert("Something Went Wrong");
+                            console.log("Error In finding grade text exists or not in Data base");
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else if(Data == "-3")
                         {
+                            console.log("Failes To Insert Into Grades");
+                            swal("Something Went Wrong", '', 'error');
+                        }
+                        else if(Data == "-2")
+                        {
                             console.log("Commit Failuer");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else if(Data == '-4')
                         {
                             console.log("Other Then 0 and 1 Record found for GradeText");
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else
                         {
                             console.log('Other Then Expecting Response Recieved');
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                     },
                     error: function(Data){
                         console.log("Error In Adding New Grade Text In The Database Ajax Call");
-                        alert("Something Went Wrong");
+                        swal("Something Went Wrong", '', 'error');
                     }
                 });
 
             }
             else
             {
-                alert("Please Enter Grade Text");
+                swal("Please Enter Grade Text", '', 'warning');
             }
         });
 
@@ -212,20 +213,34 @@
             {
                 $.ajax({
                     type: "POST",
-                    url: "./ManageGrade/searchByGradeId.php",
+                    url: "./AddGradeAjax/searchByGradeId.php",
                     data: {gradeid : gradeid},
                     dataType: 'json',
                     success: function(Data){
                         //console.log(Data);
                         if(Data[0].FLAG == "OKK")
                         {
+                            var gradeid = Data[1].gradeid;
+                            var gradetext = Data[1].gradetext;
+                            var recstatus = Data[1].recstatus;
+                            var btncolor = '';
+                            var btntext = '';
+                            if(recstatus == 1){
+                                btntext='Deactive';
+                                btncolor = 'btn-danger';
+                            }
+                            else{
+                                btntext = 'Active';
+                                btncolor = 'btn-success';
+                            }   
+
                             $("#gradetbl tbody").append(
                                 '<tr>' +
-                                    '<td>' +Data[1].gradeid+ '</td>' +
-                                    '<td>' +Data[1].gradetext+ '</td>' +
+                                    '<td>' + gradeid + '</td>' +
+                                    '<td>' + gradetext + '</td>' +
                                     '<td>' +
-                                        '<button class="btn btn-success btn-edit" gradeid='+Data[1].gradeid+' gradetext='+Data[1].gradetext+'>Edit</button> ' +
-                                        ' <button class="btn btn-danger">Remove</button>' +
+                                        '<button class="btn btn-success btn-edit" gradeid='+Data[1].gradeid+' gradetext="'+Data[1].gradetext+'">Edit</button> ' +
+                                        ' <button class="btn '+ btncolor +' activestatus"  recstatus="'+recstatus+'"  gradeid="'+ gradeid +'">'+ btntext +'</button>' +
                                         '</td>' +
                                 '</tr>'
                             );
@@ -292,75 +307,134 @@
                     gradetext = gradetext.toUpperCase();
                     $.ajax({
                         type: "POST",
-                        url: './ManageGrade/editGradeTextFromGradeId.php',
+                        url: './AddGradeAjax/editGradeTextFromGradeId.php',
                         data: {gradeid : gradeid, gradetext : gradetext},
                         //dataType: 'json',
                         success: function(Data){
                             console.log(Data);
                             if(Data == '1')
                             {
-                                alert("Succesfully Updated");
                                 ResetTableWithHide();
                                 ReloadSelectGrade();
                                 Reload();
+                                swal("Succesfully Updated", '', 'success');
                             }
                             else if(Data == "-5")
                             {
                                 console.log('Same Grade Text Available In Database');
-                                alert('Same Grade Text Available In Database');
+                                swal('Grade Already Exists', '', 'info');
 
                             }
                             else if(Data == '-1')
                             {
                                 console.log("Parameter Empty");
-                                alert('Something Went Wrong');
+                                swal('Something Went Wrong', '', 'error');
 
                             }
                             else if(Data == '-2')
                             {
                                 console.log("Error In Cheacking For Same value available in Database or not");
-                                alert('Something Went Wrong');
-
+                                swal('Something Went Wrong', '', 'error');
                             }
                             else if(Data == '-3')
                             {
                                 console.log("Error In Updating Grade Text");
-                                alert('Something Went Wrong');
+                                swal('Something Went Wrong', '', 'error');
 
                             }
                             else if(Data == '-4')
                             {
                                 console.log('Commit Failure');
-                                alert('Something Went Wrong');
+                                swal('Something Went Wrong', '', 'error');
 
                             }
                             else if(Data == "-6")
                             {
                                 console.log("Error In finding No Of Record");
-                                alert('Something Went Wrong');
+                                swal('Something Went Wrong', '', 'error');
                             }
                             else
                             {
                                 console.log('Other Then Expecting Response Recieved');
-                                alert('Something Went Wrong');
+                                swal('Something Went Wrong', '', 'error');
                             }
                         },
                         error: function(Data){
                             console.log('Error In Edit Grade Text From Grade Id Ajax Call');
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         }
                     });
                 }
                 else
                 {
-                    alert('Please Fill Grade Text');
+                    swal('Please Fill Grade Text', '', 'warning');
                 }
             }
             else
             {
                 console.log('Not Getting Grade Id Form tempgradeid');
-                alert('Something Went Wrong');
+                swal('Something Went Wrong', '', 'error');
             }
+        });
+
+        $("#gradetbl tbody").on('click', '.activestatus', function(){
+            var gradeid = $(this).attr('gradeid');
+            var recstatus = $(this).attr('recstatus');
+            var rowref = $(this);
+
+            $.ajax({
+                type: "POST",
+                url: './AddGradeAjax/changeActiveStatus.php',
+                data: {gradeid:gradeid, recstatus: recstatus},
+                success: function(Data){
+                    if(Data == '1'){
+                        var btntext = '';
+                        var btncolor = '';
+                        var oldbtncolor = '';
+                        if(recstatus == 1){
+                            btncolor = 'btn-success';
+                            btntext = 'Active';
+                            oldbtncolor = 'btn-danger';
+                        }
+                        else{
+                            btncolor = 'btn-danger';
+                            btntext  = 'Deactive';
+                            oldbtncolor = 'btn-success';
+                        }
+
+                        rowref.removeClass(oldbtncolor);
+                        rowref.addClass(btncolor);
+                        rowref.html(btntext);
+                        
+                        
+                        if(recstatus == 1){
+                            rowref.attr('recstatus', '0');
+                            swal('Grade Deactivated', '', 'warning');
+                        }   
+                        else{
+                            rowref.attr('recstatus', '1');
+                            swal('Grade Activated', '', 'success');
+                        }
+                    }
+                    else if(Data == '-1'){
+                        console.log('Commit Fail');
+                        swal('Something Went Wrong', '', 'error');
+                    }
+                    else if(Data == '-2'){
+                        console.log('err in update query');
+                        swal('Something Went Wrong', '', 'error');
+                    }
+                    else{
+                        console.log('other flag recived');
+                        swal('Something Went Wrong', '', 'error');
+                    }
+                },
+                error: function(Data){
+                    console.log('err in ./AddGradeAjax/changeActiveStatus.php  Ajax Call');
+                    swal('Something Went Wrong', '', 'error');
+                }
+            });
+
         });
 
         function Reload() {
@@ -385,7 +459,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "./ManageGrade/getGrades.php",
+                url: "./AddGradeAjax/getGrades.php",
                 dataType: 'json',
                 success: function(Data){
                     console.log(Data);
@@ -427,6 +501,8 @@
             ResetTable();
             $("#gradetbl").prop('hidden', true);   
         }
+        
+
     });
 </script>
 

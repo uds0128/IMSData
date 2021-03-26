@@ -18,8 +18,9 @@
                 $row = $searchByGradeId->fetch_assoc();
                 $gradeid = $row['GradeId'];
                 $gradetext = $row['GradeText'];
+                $recstatus = $row['RecStatus'];
 
-                $obj = array('gradeid' => $gradeid, 'gradetext' => $gradetext );
+                $obj = array('gradeid' => $gradeid, 'gradetext' => $gradetext, 'recstatus' => $recstatus );
                 $dataToBeSent[] = $obj;
                 echo json_encode($dataToBeSent);
             }
