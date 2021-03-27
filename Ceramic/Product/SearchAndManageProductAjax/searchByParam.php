@@ -30,6 +30,7 @@
                 $code = $row['Code'];
                 $gst = $row['ProductGST'];
                 $productid = $row['ProductID'];
+                $recstatus = $row['recordstatus'];
 
                 $obj = array(
                     'type' => $type,
@@ -43,7 +44,8 @@
                     'gradetext' => $gradetext,
                     'code' => $code,
                     'gst' => $gst,
-                    'productid' => $productid
+                    'productid' => $productid,
+                    'recstatus' => $recstatus
                 );
 
                 $dataToBeSent[] = $obj;

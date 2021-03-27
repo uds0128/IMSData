@@ -14,6 +14,7 @@
 
    <script src="https://cdn.jsdelivr.net/npm/table-to-json@1.0.0/lib/jquery.tabletojson.min.js"
       integrity="sha256-H8xrCe0tZFi/C2CgxkmiGksqVaxhW0PFcUKZJZo1yNU=" crossorigin="anonymous"></script>
+   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
    <style>
       /* Chrome, Safari, Edge, Opera */
       input::-webkit-outer-spin-button,
@@ -73,7 +74,7 @@
                                  }
                                  else
                                  {
-                                    echo "<script>alert('Something Went Wrong');</script>";
+                                    echo "<script>swal('Something Went Wrong', '', 'error');</script>";
                                     location.reload(true);
                                  }
                                  ?>
@@ -406,19 +407,19 @@
                   }
                   else if (Data == '1') {
                      console.log('Same Record Found In Database');
-                     alert('Record Found In Database');
+                     swal('Record Found In Database', '', 'info');
                   }
                   else if (Data == '-1') {
                      console.log('More Then One Record Found');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else if (Data == "-2") {
                      console.log("Error In Executing Query");
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log("Other Then Falg Recived");
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
 
 
@@ -442,7 +443,7 @@
             });
          }
          else {
-            alert("All fields are required");
+            swal("All fields are required", '', 'warning');
          }
 
       });
@@ -475,7 +476,7 @@
                      }
                   }
                   else {
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                      location.reload(true);
                   }
                }
@@ -483,7 +484,7 @@
          }
          else {
             //console.log('Uddhav');
-            alert('Please Select Category');
+            swal('Please Select Category', '', 'warning');
             $("#subcategories").empty();
             $("#subcategories").append(new Option('Select', '-1'));
          }
@@ -515,20 +516,20 @@
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Brands Found For Selected Category And Subcategory");
-                     alert("No Brands Found For Selected Category And Subcategory");
+                     swal("No Brands Found For Selected Category And Subcategory", '', 'info');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
 
@@ -550,25 +551,25 @@
                      }
                      else if (Data[0].FLAG == "RECORDNOTFOUND") {
                         console.log("No Grade Found For Selected Category And Subcategory");
-                        alert("No Grade Found For Selected Category And Subcategory");
+                        swal("No Grade Found For Selected Category And Subcategory",'', 'info');
                      }
                      else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                      }
                      else {
                         console.log('Other Then Flag');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                      }
                   },
                   error: function (Data) {
                      console.log('Error In Ajax Call ' + Data);
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                });
             }
             else {
-               alert("Please Select Category Or Subcategory");
+               swal("Please Select Category Or Subcategory", '', 'warning');
             }
 
          }
@@ -603,37 +604,34 @@
                console.log(Data);
 
                if (Data == "1") {
-                  alert("Succesfully Inserted");
-                  //$('#data_table tbody').empty();
-                  //location.reload(true);
+                  swal("Succesfully Inserted", '', 'success');
+                  location.reload(true);
                }
                else if (Data == "-1") {
                   console.log("Commit Fail");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
                else if (Data == "-2") {
                   console.log("Error While Inserting Into Product Mst");
-                  alert("Something Went Wrong");
+                  swal('Something Went Wrong', '', 'error');
                }
                else if (Data == "-3") {
                   console.log("Record All Ready Exista");
-                  alert("Something Went Wrong");
+                  swal('Something Went Wrong', '', 'error');
 
                }
                else if (Data == "-4") {
                   console.log("More Then One Record Found");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log('Other Response Recived');
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
 
                }
             },
             error: function (Data) {
-
-               alert('Something Went Wrong !!!');
-               alert(Data);
+               swal('Something Went Wrong', '', 'error');
             }
          });
       });
@@ -649,20 +647,12 @@
             tr = tr.next();
          }
 
-         /*for(let i=0; i<obj.length; i++)
-         {
-            console.log(obj[i]);
-         }*/
-
-         //console.log(obj);
-
          $('#category_name').val(obj[0]);
          let cat = $('#category_name option:selected').attr('cid');
 
          $("#subcategories").empty();
          $("#subcategories").append(new Option('Select', '-1'));
 
-         //console.log(obj[11]);
 
          if (cat != '-1') {
             $.ajax({
@@ -686,38 +676,29 @@
                   }
                   else if (Data[0].FLAG == "NORECORDFOUND") {
                      console.log("NORECORDFOUND");
-                     alert('Something Went Wrong');
+                     swal('No Subcategory Found','', 'info');
                   }
                   else if (Data[0].FLAG == "ERRORINEXECUTINGQUERY") {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                      //location.reload(true);
                   }
                },
                error: function (Data) {
                   console.log("error In tbody edit get subcategories Ajax Call");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
          }
          else {
-            alert('Please Select Category');
+            swal('Please Select Category', '', 'warning');
             $("#subcategories").empty();
             $("#subcategories").append(new Option('Select', '-1'));
          }
 
-         /*alert('before');
-         console.log(obj[11]);
-         
-
-         
-         alert('after');
-         //$('#hsn').val(obj[2]);*/
-
-         //ReloadBrandAndGrade();
          ResetSelectMenu($("#selectbrand"));
          ResetSelectMenu($("#selectgrade"));
 
@@ -745,20 +726,20 @@
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Brands Found For Selected Category And Subcategory");
-                     alert("No Brands Found For Selected Category And Subcategory");
+                     swal("No Brands Found For Selected Category And Subcategory", '', 'info');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
 
@@ -781,29 +762,29 @@
                      }
                      else if (Data[0].FLAG == "RECORDNOTFOUND") {
                         console.log("No Grade Found For Selected Category And Subcategory");
-                        alert("No Grade Found For Selected Category And Subcategory");
+                        swal("No Grade Found For Selected Category And Subcategory", '', 'info');
                      }
                      else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                      }
                      else {
                         console.log('Other Then Flag');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                      }
                   },
                   error: function (Data) {
                      console.log('Error In Ajax Call ' + Data);
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                });
             }
             else {
-               alert("Please Select Category Or Subcategory");
+               swal("Please Select Category Or Subcategory", '', 'warning');
             }
          }
          else {
-            alert("Please Select Category Or Subcategory");
+            swal("Please Select Category Or Subcategory", '', 'warning');
          }
 
 
@@ -972,17 +953,17 @@
                         $('#reset').prop('disabled', false);
                      }
                      else {
-                        alert('Please Select Row To Edit');
+                        swal('Please Select Row To Edit', '', 'warning');
                      }
                   }
                   else {
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                }
             });
          }
          else {
-            alert("All fields are required");
+            swal("All fields are required", '', 'warning');
          }
 
 
@@ -1024,20 +1005,20 @@
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Brands Found For Selected Category And Subcategory");
-                     alert("No Brands Found For Selected Category And Subcategory");
+                     swal("No Brands Found For Selected Category And Subcategory", '', 'info');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
 
@@ -1059,25 +1040,25 @@
                      }
                      else if (Data[0].FLAG == "RECORDNOTFOUND") {
                         console.log("No Grade Found For Selected Category And Subcategory");
-                        alert("No Grade Found For Selected Category And Subcategory");
+                        swal("No Grade Found For Selected Category And Subcategory", '', 'info');
                      }
                      else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                      }
                      else {
                         console.log('Other Then Flag');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                      }
                   },
                   error: function (Data) {
                      console.log('Error In Ajax Call ' + Data);
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                });
             }
             else {
-               alert("Please Select Category Or Subcategory");
+               swal("Please Select Category Or Subcategory", '', 'warning');
             }
 
          }

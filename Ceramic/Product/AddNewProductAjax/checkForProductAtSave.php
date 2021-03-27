@@ -24,7 +24,7 @@
         ."QtyPerUnit=".$qty." AND "
         ."PackingUnit='".$packingunit."' AND "
         ."GradeId=".$gradeid." AND "
-        ."Code='".$code."'   and RecStatus=true";
+        ."Code='".$code."'   ";
     
         //echo $searchIntoProductMst;
 

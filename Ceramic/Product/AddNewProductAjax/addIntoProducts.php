@@ -6,7 +6,8 @@
     $no_of_rows = count($mydata);
     $count=1;
 
-    mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
+
+    mysqli_autocommit($conn, false);
 
     for($i=0; $i<$no_of_rows; $i++)
     {
@@ -56,27 +57,36 @@
 
             if(!$resultinsertIntoProductMst)
             {
-                echo "-2";  //  -2 ==> Error While Inserting Into Product Mst
+                mysqli_rollback($conn);
+                mysqli_autocommit($conn, true);
+                die("-2");  //  -2 ==> Error While Inserting Into Product Mst
             }
         }
         else if($noofrecord == 1)
         {
-            echo "-3";  //  -3 ==> Record All Ready Exista
+            mysqli_rollback($conn);
+            mysqli_autocommit($conn, true);
+            die("-3");  //  -3 ==> Record All Ready Exista
         }
         else
         {
-            echo "-4";  //  -4 ==> More Then One Record Found
+            mysqli_rollback($conn);
+            mysqli_autocommit($conn, true);
+            die("-4");  //  -4 ==> More Then One Record Found
         }
         $count++;
     }
 
-    if(!mysqli_commit($conn))
+    if(mysqli_commit($conn))
     {
-        echo "-1";  //  -1 ==> Commit Failure
+        mysqli_autocommit($conn, true);
+        echo "1";  //  1 ==>  Successfully
     }
     else
     {
-        echo "1";  //  1 ==>  Successfully
+        mysqli_rollback($conn);
+        mysqli_autocommit($conn, true);
+        die("-1");  //  -1 ==> Commit Failure
     }
 
 ?>

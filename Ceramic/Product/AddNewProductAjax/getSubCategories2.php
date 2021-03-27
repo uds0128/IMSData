@@ -10,7 +10,7 @@
     //echo $scn;
     $dataToBeSent = array();
 
-    $query = "select subcategory_id, subcategory_name, subcategories.category_id, category_name from subcategories JOIN categories WHERE subcategories.category_id=categories.category_id and subcategories.active_status=1 and categories.category_name='".$scn."' ORDER BY subcategories.subcategory_name ASC";
+    $query = "select subcategory_id, subcategory_name, subcategories.category_id, category_name from subcategories JOIN categories WHERE subcategories.category_id=categories.category_id and subcategories.active_status=1 and subcategories.active_status = true and categories.category_name='".$scn."' ORDER BY subcategories.subcategory_name ASC";
     $result = mysqli_query($conn, $query);
 
     if($result)

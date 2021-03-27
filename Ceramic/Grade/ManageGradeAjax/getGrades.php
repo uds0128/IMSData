@@ -1,7 +1,7 @@
 <?php
     include('./config.php');
 
-    $result = mysqli_query($conn, "SELECT GradeId, GradeText FROM Grades");
+    $result = mysqli_query($conn, "SELECT GradeId, GradeText FROM Grades  WHERE RecStatus=true");
 
     $dataToBeSent = array();
     if($result)

@@ -9,6 +9,7 @@
    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
    <style>
       /* Chrome, Safari, Edge, Opera */
@@ -167,7 +168,7 @@
                                     }
                                     else
                                     {
-                                       echo "<script>alert('Something Went Wrong');</script>";
+                                       echo "<script>swal('Something Went Wrong', '', 'error');</script>";
                                     location.reload(true);
                                     }
                                  ?>
@@ -350,7 +351,7 @@
                                     }
                                     else
                                     {
-                                       echo "<script>alert('Something Went Wrong');</script>";
+                                       echo "<script>swal('Something Went Wrong', '', 'error');</script>";
                                        location.reload(true);
                                     }
                                  ?>
@@ -570,9 +571,6 @@
 
          if ($('#subcategoriesCheck').prop('checked') == true) {
             $('#subcategories').prop('disabled', false);
-
-            //if($("#category_name").val() == '-1' && )
-
          }
          else {
             $('#subcategories').val('-1');
@@ -657,7 +655,7 @@
 
          $("#data_table tbody").empty();
 
-         let query = "SELECT * FROM `productmst` join brandnames, grades, subcategories, categories WHERE productmst.BrandId = brandnames.BrandId and productmst.GradeId = grades.GradeId and subcategories.subcategory_id= productmst.ProductSubCategoryID and subcategories.category_id= categories.category_id and productmst.RecStatus = true  ";
+         let query = "SELECT *, productmst.RecStatus as recordstatus FROM `productmst` join brandnames, grades, subcategories, categories WHERE productmst.BrandId = brandnames.BrandId and productmst.GradeId = grades.GradeId and subcategories.subcategory_id= productmst.ProductSubCategoryID and subcategories.category_id= categories.category_id    ";
 
          let validflag = 0;
 
@@ -669,19 +667,18 @@
             }
             else {
                validflag = 1;
-               alert("Please Select Category");
+               swal("Please Select Category", '', 'warning');
             }
          }
 
          if ($('#subcategoriesCheck').prop('checked') == true) {
 
             if ($('#subcategories').val() != '-1') {
-               // query = query + " and subcategory_name='" + $('#subcategories option:selected').html() + "' ";
                query = query + " and productmst.ProductSubCategoryID='" + $('#subcategories').val() + "' ";
             }
             else {
                validflag = 1;
-               alert("Please Select Subcategory");
+               swal("Please Select Subcategory", '', 'warning');
             }
          }
 
@@ -692,7 +689,7 @@
             }
             else {
                validflag = 1;
-               alert("Please Enter HSN Code");
+               swal("Please Enter HSN Code", '', 'warning');
             }
          }
 
@@ -703,7 +700,7 @@
             }
             else {
                validflag = 1;
-               alert("Please Enter Type/Color Code");
+               swal("Please Enter Type/Color Code", '', 'warning');
             }
          }
 
@@ -714,7 +711,7 @@
             }
             else {
                validflag = 1;
-               alert('Please Select Brand Name');
+               swal("Please Select Brand Name", '', 'warning');
             }
          }
 
@@ -725,7 +722,7 @@
             }
             else {
                validflag = 1;
-               alert('Please Select Dimension');
+               swal("Please Select Dimension", '', 'warning');
             }
          }
 
@@ -736,7 +733,7 @@
             }
             else {
                validflag = 1;
-               alert('Please Select Qty Per Unit');
+               swal("Please Select Qty Per Unit", '', 'warning');
             }
          }
 
@@ -747,7 +744,8 @@
             }
             else {
                validflag = 1;
-               alert('Please Select Packing Unit');
+               swal("Please Select Packing Unit", '', 'warning');
+
             }
          }
 
@@ -758,7 +756,7 @@
             }
             else {
                validflag = 1;
-               alert('Please Select Grade');
+               swal("Please Select Grade", '', 'warning');
             }
          }
 
@@ -769,7 +767,7 @@
             }
             else {
                validflag = 1;
-               alert('Please Select Code No. / Design No. / Model No.');
+               swal("Please Select Code No. / Design No. / Model No.", '', 'warning');
             }
          }
 
@@ -780,24 +778,22 @@
             }
             else {
                validflag = 1;
-               alert('Please Select GST');
+               swal("Please Select GST", '', 'warning');
             }
          }
 
          if (validflag == 0) {
 
-            console.log(query);
             $.ajax({
                method: "POST",
                url: "./SearchAndManageProductAjax/searchByParam.php",
                data: { query: query },
                dataType: 'json',
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
 
                   if (Data[0].FLAG == "RECORDFOUND") {
                      let n = Data.length;
-                     console.log(Data);
 
                      for (let i = 1; i < n; i++) {
                         var type = Data[i].type;
@@ -812,7 +808,20 @@
                         var code = Data[i].code;
                         var gst = Data[i].gst;
                         var productid = Data[i].productid;
-                        //$('.edititem #pid').val(productid);
+                        var recstatus = Data[i].recstatus;
+
+
+                        var btncolor = '';
+                        var btntext = '';
+
+                        if (recstatus == 1) {
+                           btncolor = 'btn-danger';
+                           btntext = 'Deactive';
+                        }
+                        else {
+                           btncolor = 'btn-success';
+                           btntext = 'Active';
+                        }
 
                         $('#data_table tbody:last-child').append(
                            '<tr>' +
@@ -827,27 +836,85 @@
                            '<td>' + grade + '</td>' +
                            '<td>' + code + '</td>' +
                            '<td>' + gst + '</td>' +
-                           '<td><input type="button" class="btn btn-primary editbtn" pid="' + productid + '" value="Edit"> <input type="button" class="btn btn-primary" value="Delete" onclick="SomeDeleteRowFunction(this)"></center></td>' +
+                           '<td>' +
+                           '<input type="button" class="btn btn-primary editbtn" pid="' + productid + '" value="Edit"> ' +
+                           ' <input type="button" class="btn ' + btncolor + '  changestatus" value="' + btntext + '"  productid="' + productid + '"  recstatus="' + recstatus + '"></td>' +
                            '</tr>');
                      }
 
                   }
                   else if (Data[0].FLAG == "NORECORDFOUND") {
-                     alert('NO Record Found For Your Search Result');
+                     swal('NO Record Found For Your Search Result', '', 'info');
                   }
                   else if (Data[0].FLAG == "ERRORINQUERY") {
-                     alert('Error In Query');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log("Error In ./SearchAndManageProductAjax/searchByParam.php  Ajax Call");
-                  console.log(Data.responseText);
+                  swal('Something Went Wrong', '', 'error');
                }
             });
          }
          else {
             console.log('CURRUPTED');
          }
+      });
+
+      $("tbody").on('click', '.changestatus', function () {
+         var productid = $(this).attr('productid');
+         var recstatus = $(this).attr('recstatus');
+         var rowref = $(this);
+
+         $.ajax({
+            type: "POST",
+            url: './SearchAndManageProductAjax/changeActiveStatus.php',
+            data: { productid: productid, recstatus: recstatus },
+            success: function (Data) {
+               //console.log(Data);
+
+               if (Data == '1') {
+                  var oldbtncolor = '';
+                  var btncolor = '';
+                  var btntext = '';
+
+                  if (recstatus == 1) {
+                     oldbtncolor = 'btn-danger';
+                     btntext = ' Active ';
+                     btncolor = 'btn-success';
+                     rowref.attr('recstatus', 0);
+                  }
+                  else {
+                     oldbtncolor = 'btn-success';
+                     btntext = 'Deactive';
+                     btncolor = 'btn-danger';
+                     rowref.attr('recstatus', 1);
+                  }
+
+                  rowref.removeClass(oldbtncolor);
+                  rowref.addClass(btncolor);
+                  rowref.val(btntext);
+                  if (recstatus == 1) {
+                     swal('Product Deactivated', '', 'warning');
+                  }
+                  else {
+                     swal('Product Activated', '', 'success');
+                  }
+               }
+               else if (Data == '-1') {
+                  console.log("Err While Update QUery");
+                  swal('Something Went Wrong', '', 'error');
+               }
+               else {
+                  console.log("Other Flag Recived");
+                  swal('Something Went Wrong', '', 'error');
+               }
+            },
+            error: function (Data) {
+               console.log('err in  ./SearchAndManageProductAjax/changeActiveStatus.php   Ajax Call');
+               swal('Something Went Wrong', '', 'error');
+            }
+         });
       });
 
       $("tbody").on('click', '.editbtn', function () {
@@ -866,7 +933,7 @@
             tr = tr.next();
          }
 
-         console.log(obj);
+         //console.log(obj);
 
          $(".edititem #category_name option").each(function () {
             if ($(this).text() == obj[0]) {
@@ -874,6 +941,7 @@
                return false;
             }
          });
+
          let cid = $('.edititem #category_name').val();
 
          $(".edititem #subcategories").empty();
@@ -897,23 +965,20 @@
                         let sci = Data[i].sci;
                         $(".edititem #subcategories").append(new Option(scn, sci))
                      }
-                     //$(".edititem #subcategories")
-
                   }
                   else {
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                      location.reload(true);
                   }
                }
             });
          }
          else {
-            //alert('Please Select Category');
             $(".edititem #subcategories").empty();
             $(".edititem #subcategories").append(new Option('Select', '-1'));
          }
 
-         console.log(obj[1]);
+         //console.log(obj[1]);
          $(".edititem #subcategories option").each(function () {
             if ($(this).text() == obj[1]) {
                $(this).prop('selected', true);
@@ -924,7 +989,7 @@
 
          var subcatid = $(".edititem #subcategories").val();
 
-         console.log(subcatid);
+         //console.log(subcatid);
 
          if (subcatid != "-1") {
             ResetSelectMenu($(".edititem #getbrand"));
@@ -936,13 +1001,12 @@
                data: { subcatid: subcatid },
                dataType: 'json',
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == "OKK") {
                      var n = Data.length;
 
                      for (var i = 1; i < n; i++) {
                         $(".edititem #getbrand").append(new Option(Data[i].brandname, Data[i].brandid));
-                        //$("#selectbrand").append('<option value='+Data[i].brandid+' showvalue='+Data[i].brandname+'>'+Data[i].brandname+'</option>');
                      }
 
                      $(".edititem #getbrand option").each(function () {
@@ -954,20 +1018,20 @@
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Brands Found For Selected Category And Subcategory");
-                     alert("No Brands Found For Selected Category And Subcategory");
+                     swal("No Brands Found For Selected Category And Subcategory", '', 'warning');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
 
@@ -977,7 +1041,7 @@
                data: { subcatid: subcatid },
                dataType: 'json',
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == "OKK") {
                      var n = Data.length;
 
@@ -994,20 +1058,20 @@
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Grade Found For Selected Category And Subcategory");
-                     alert("No Grade Found For Selected Category And Subcategory");
+                     swal("No Grade Found For Selected Category And Subcategory", '', 'warning');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
 
@@ -1019,7 +1083,6 @@
 
 
          $('.edititem #getProductTypeColor').val(obj[3]);
-         // $('.edititem #getBrandName').val(obj[4]);
 
          if ($(".edititem #sizeRadio").prop('checked') == true) {
             sizeordimension = $(".edititem #sizeRadio").val();
@@ -1044,7 +1107,6 @@
             $('.edititem #dimensionRadio').prop('checked', true);
             $(".edititem .getDimension").prop('disabled', false);
             var dimension = obj[5];
-            //console.log(obj[5]);
 
             var split_dimension = dimension.split(' ');
             var firstDimension = split_dimension[0];
@@ -1071,17 +1133,14 @@
       });
 
       $('.edititem #category_name').on('change', function () {
-         //console.log('HEllo');
          ResetSelectMenu($(".edititem #subcategories"));
          ResetSelectMenu($(".edititem #getbrand"));
          ResetSelectMenu($(".edititem #getgrade"));
 
          let cid = $('.edititem #category_name').val(); // cid == categoryid
-         console.log(cid);
+         //console.log(cid);
 
          if (cid != '-1') {
-            //console.log('Hello');
-            //myobj = { cid: cid };
 
             $.ajax({
                type: "POST",
@@ -1089,7 +1148,7 @@
                data: { cid: cid },
                dataType: "json",
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == 'OK') {
                      let n = Data.length;
                      for (let i = 1; i < n; i++) {
@@ -1100,23 +1159,20 @@
                   }
                   else if (Data[0].FLAG == "NORECORDFOUND") {
                      console.log("No Subcategory Found For Given Category");
-                     alert('No Subcategory Found For Given Category');
+                     swal('No Subcategory Found For Given Category', '', 'warning');
                   }
                   else if (Data[0].FLAG == "NOTOK") {
                      console.log("Error In Executing Query");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Response Found');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log("Error In Ajax Call In .edititem Categories Change Event");
-                  alert('Something Went Wrong');
-                  console.log(Data.status);
-                  console.log(Data.statusText);
-                  console.log(Data.responseText);
+                  swal('Something Went Wrong', '', 'error');
                }
             });
          }
@@ -1134,8 +1190,6 @@
 
          var subcatid = $(".edititem #subcategories").val();
 
-         console.log(subcatid);
-
          if (subcatid != "-1") {
 
             $.ajax({
@@ -1144,31 +1198,30 @@
                data: { subcatid: subcatid },
                dataType: 'json',
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == "OKK") {
                      var n = Data.length;
 
                      for (var i = 1; i < n; i++) {
                         $(".edititem #getbrand").append(new Option(Data[i].brandname, Data[i].brandid));
-                        //$("#selectbrand").append('<option value='+Data[i].brandid+' showvalue='+Data[i].brandname+'>'+Data[i].brandname+'</option>');
                      }
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Brands Found For Selected Category And Subcategory");
-                     alert("No Brands Found For Selected Category And Subcategory");
+                     swal("No Brands Found For Selected Category And Subcategory", '', 'warning');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
 
@@ -1179,31 +1232,30 @@
                data: { subcatid: subcatid },
                dataType: 'json',
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == "OKK") {
                      var n = Data.length;
 
                      for (var i = 1; i < n; i++) {
                         $(".edititem #getgrade").append(new Option(Data[i].gradetext, Data[i].gradeid));
-                        //$("#selectgrade").append('<option value='+Data[i].gradeid+' showvalue='+Data[i].gradetext+'>'+Data[i].gradetext+'</option>');
                      }
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Grade Found For Selected Category And Subcategory");
-                     alert("No Grade Found For Selected Category And Subcategory");
+                     swal("No Grade Found For Selected Category And Subcategory", '', 'warning');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
          }
@@ -1216,7 +1268,6 @@
       $(".edititem #save").click(function () {
 
          var pid = $(".edititem #pid").val();
-         console.log(pid);
          var type = $('.edititem #category_name').val();
          var subtypeid = $('.edititem #subcategories').val();
          //var HSN = $('.edititem #hsn').val();
@@ -1243,10 +1294,10 @@
 
          var qtyperunit = $('.edititem #getQtyPerUnit').val();
          var packingunit = $('.edititem #getPackingUnit').val();
-         //qtyperunit = qtyperunit +" "+ packingunit;
+
          var gradeid = $('.edititem #getgrade').val();
          var code = $('.edititem #getCode').val();
-         //var gst = $('.edititem #getGst').val();
+
 
 
          if (pid != "" && type != -1 && subtypeid != -1 /*&& HSN != "" */ && producttypeorcolor != "" && brandid != "-1" && ((sizeordimension == "size") || (sizeordimension == "dimension" && dimensionFirst != "" && dimensionSecond != "" && dimensionUnitFirst != -1 && dimensionUnitSecond != -1)) && qtyperunit != "" && packingunit != "-1" && gradeid != "-1" && code != "" /*&& gst != -1*/) {
@@ -1267,117 +1318,58 @@
                //gst: gst
             }
 
-            console.log(param);
+            //console.log(param);
             $.ajax({
                type: "POST",
                url: "./SearchAndManageProductAjax/updateProductInTableCheckSaveStatus.php",
                data: JSON.stringify(param),
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data == "1") {
-                     alert('Succesfully Updated Product');
+                     swal('Succesfully Updated Product', '', 'success');
                      $('.edititem').prop('hidden', true);
                      $('.searchitem').prop('hidden', false);
                      $('#data_table').prop('hidden', false);
                      $('.edititem #pid').val('');
                      ReloadTable();
                   }
-                  else if(Data == "-3"){
+                  else if (Data == "-3") {
                      console.log('Record Already Exists');
-                     alert('Record Already Exists');
+                     swal('Record Already Exists', '', 'info');
                   }
-                  else if(Data == "-4"){
+                  else if (Data == "-4") {
                      console.log('More Then One Record Found');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else if (Data == "-6") {
                      console.log("Commit Fail");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
-                  else if(Data == "-5"){
+                  else if (Data == "-5") {
                      console.log("Error In Update Query ");
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else if (Data == "-2") {
                      console.log('Error Check Query');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else if (Data == "-1") {
                      console.log("Parameters Empty");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Response Recieved');
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
-
-                  /*if (Data == '-1') {
-                     console.log('Parameter Empty');
-                     alert("Something Went Wrong");
-                  }
-                  else if (Data == '-2') {
-                     console.log('Error In Query Syntex')
-                     alert("Something Went Wrong");
-                  }
-                  else if (Data == "-3") {
-                     console.log("More Then One Sub Category ID Found");
-                     alert("Something Went Wrong");
-                  }
-                  else if (Data == "-4") {
-                     console.log("Query Not Executed");
-                     alert("Something Went Wrong");
-                  }
-                  else if (Data == "-5") {
-
-                  }
-                  else if (Data == "1") {
-                     //console.log('Ready To Insert');
-                     /*$('#data_table tbody:last-child').append(
-                        '<tr>' +
-                        '<td>' + type + '</td>' +
-                        '<td>' + subtype + '</td>' +
-                        '<td>' + HSN + '</td>' +
-                        '<td>' + producttypeorcolor + '</td>' +
-                        '<td>' + brandname + '</td>' +
-                        '<td>' + dimension + '</td>' +
-                        '<td>' + qtyperunit + '</td>' +
-                        '<td>' + packingunit + '</td>' +
-                        '<td>' + grade + '</td>' +
-                        '<td>' + code + '</td>' +
-                        '<td>' + gst + '</td>' +
-                        '<td><input type="button" class="btn btn-primary editbtn" value="Edit"> <input type="button" class="btn btn-primary" value="Delete" onclick="SomeDeleteRowFunction(this)"></center></td>' +
-                        '</tr>'
-                     );*/
-
-
-                  /*console.log('<tr>' +
-                     '<td>' + type + '</td>' +
-                     '<td>' + subtype + '</td>' +
-                     '<td>' + HSN + '</td>' +
-                     '<td>' + producttypeorcolor + '</td>' +
-                     '<td>' + brandname + '</td>' +
-                     '<td>' + dimension + '</td>' +
-                     '<td>' + qtyperunit + '</td>' +
-                     '<td>' + packingunit + '</td>' +
-                     '<td>' + grade + '</td>' +
-                     '<td>' + code + '</td>' +
-                     '<td>' + gst + '</td>' +
-                     '<td><input type="button" class="btn btn-primary editbtn" value="Edit"> <input type="button" class="btn btn-primary" value="Delete" onclick="SomeDeleteRowFunction(this)"></center></td>' +
-                     '</tr>');
-               }*/
                }
             });
          }
          else {
             if (pid == "") {
-               alert("Problem to Detect PID");
+               swal('Something Went Wrong', '', 'error');
             }
-            alert("All fields are required");
+            swal("All fields are required", '', 'warning');
          }
-
-
-         //location.reload(true);
-         //ReloadTable();
       });
 
       $('.edititem #cancel').click(function () {
@@ -1388,15 +1380,12 @@
       });
 
       $(".sizeordimension").on('change', function () {
-         //console.log($('#sizeRadio').prop('checked'));
          if ($('.edititem #sizeRadio').prop('checked')) {
-            //console.log('SIZE');
             $(".getDimension").prop('disabled', true);
             $(".getDimension").val('');
             $(".getDimensionSelect").val('-1');
          }
          else if ($('.edititem #dimensionRadio').prop('checked')) {
-            //console.log('Dimenson');
             $(".getDimension").prop('disabled', false);
          }
       });
@@ -1404,30 +1393,18 @@
       $("#category_name").on('change', function () {
 
          ResetSelectMenu($("#subcategories"));
-         //$("#hsn").val("");
-         //ResetSelectMenu($("#getProductTypeColor"));
-         //ResetSelectMenu($("#getbrandname"));
-         //ResetSelectMenu($("#getdimension"));
-         //ResetSelectMenu($("#getqtyperunit"));
-         //$("#getpackingunit").val("-1");
-         //ResetSelectMenu($("#getgrade"));
-         //ResetSelectMenu($("#getcode"));
-         //$("#getgst").val("-1");
 
          let cid = $('#category_name').val(); // cid == categoryid
-         console.log(cid);
+         //console.log(cid);
 
          if (cid != '-1') {
-            console.log('Hello');
-            //myobj = { cid: cid };
-
             $.ajax({
                type: "POST",
                url: "./SearchAndManageProductAjax/getSubcategoriesFromCategories.php",
                data: { cid: cid },
                dataType: "json",
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == 'OK') {
                      let n = Data.length;
                      for (let i = 1; i < n; i++) {
@@ -1438,36 +1415,26 @@
                   }
                   else if (Data[0].FLAG == "NORECORDFOUND") {
                      console.log("No Subcategory Found For Given Category");
-                     alert('No Subcategory Found For Given Category');
+                     swal('No Subcategory Found For Given Category', '', 'warning');
                   }
                   else if (Data[0].FLAG == "NOTOK") {
                      console.log("Error In Executing Query");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Response Found');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log("Error In Ajax Call In Categories Change Event");
-                  alert('Something Went Wrong');
-                  console.log(Data.status);
-                  console.log(Data.statusText);
-                  console.log(Data.responseText);
+                  swal('Something Went Wrong', '', 'error');
                }
             });
          }
          else {
             ReloadSubcategoriesSelectMenu();
          }
-         // else {
-         //    //console.log('Uddhav');
-         //    alert('Please Select Category');
-         //    $("#subcategories").empty();
-         //    $("#subcategories").append(new Option('Select', '-1'));
-         // }
-
       });
 
       $("#categoriesCheck").on('change', function () {
@@ -1479,20 +1446,10 @@
       });
 
       $("#subcategories").on('change', function () {
-         //$("#hsn").val("");
-         //ResetSelectMenu($("#getProductTypeColor"));
+
          ResetSelectMenu($("#getbrandname"));
-         //ResetSelectMenu($("#getdimension"));
-         //ResetSelectMenu($("#getqtyperunit"));
-         //$("#getpackingunit").val("-1");
          ResetSelectMenu($("#getgrade"));
-         //ResetSelectMenu($("#getcode"));
-         //$("#getgst").val("-1");
-
          var subcatid = $("#subcategories").val();
-
-         console.log(subcatid);
-
          if (subcatid != "-1") {
 
 
@@ -1502,31 +1459,30 @@
                data: { subcatid: subcatid },
                dataType: 'json',
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == "OKK") {
                      var n = Data.length;
 
                      for (var i = 1; i < n; i++) {
                         $("#getbrandname").append(new Option(Data[i].brandname, Data[i].brandid));
-                        //$("#selectbrand").append('<option value='+Data[i].brandid+' showvalue='+Data[i].brandname+'>'+Data[i].brandname+'</option>');
                      }
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Brands Found For Selected Category And Subcategory");
-                     alert("No Brands Found For Selected Category And Subcategory");
+                     swal("No Brands Found For Selected Category And Subcategory", '', 'warning');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
 
@@ -1537,7 +1493,7 @@
                data: { subcatid: subcatid },
                dataType: 'json',
                success: function (Data) {
-                  console.log(Data);
+                  //console.log(Data);
                   if (Data[0].FLAG == "OKK") {
                      var n = Data.length;
 
@@ -1548,20 +1504,20 @@
                   }
                   else if (Data[0].FLAG == "RECORDNOTFOUND") {
                      console.log("No Grade Found For Selected Category And Subcategory");
-                     alert("No Grade Found For Selected Category And Subcategory");
+                     swal("No Grade Found For Selected Category And Subcategory", '', 'warning');
                   }
                   else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                      console.log("ERROR IN EXECUTING QUERY");
-                     alert("Something Went Wrong");
+                     swal('Something Went Wrong', '', 'error');
                   }
                   else {
                      console.log('Other Then Flag');
-                     alert('Something Went Wrong');
+                     swal('Something Went Wrong', '', 'error');
                   }
                },
                error: function (Data) {
                   console.log('Error In Ajax Call ' + Data);
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             });
          }
@@ -1614,7 +1570,7 @@
             url: "./SearchAndManageProductAjax/getAllSubCategories.php",
             dataType: 'json',
             success: function (Data) {
-               console.log(Data);
+               //console.log(Data);
                if (Data[0].FLAG == 'OK') {
                   let n = Data.length;
                   for (let i = 1; i < n; i++) {
@@ -1625,21 +1581,19 @@
                }
                else if (Data[0].FLAG == "NORECORDFOUND") {
                   console.log("No Subcategory Found For Given Category");
-                  alert('No Subcategory Found For Given Category');
+                  swal('No Subcategory Found For Given Category', '', 'warning');
                }
                else if (Data[0].FLAG == "NOTOK") {
                   console.log("Error In Executing Query");
-                  alert("Something Went Wrong");
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log('Other Response Found');
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log("Error In ./SearchAndManageProductAjax/getAllSubCategories.php   Ajax Call");
-               console.log(Data.responseText);
-               console.log(Data.statusText);
             }
          });
       }
@@ -1662,16 +1616,16 @@
                }
                else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                   console.log("ERROR IN EXECUTING QUERY");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log('OTHER THEN FLAG');
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log(Data);
-               alert('Something Went Wrong');
+               swal('Something Went Wrong', '', 'error');
             }
          });
       }
@@ -1694,16 +1648,16 @@
                }
                else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                   console.log("ERROR IN EXECUTING QUERY");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log('OTHER THEN FLAG');
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log(Data);
-               alert('Something Went Wrong');
+               swal('Something Went Wrong', '', 'error');
             }
          });
       }
@@ -1716,7 +1670,7 @@
             url: "./SearchAndManageProductAjax/getAllDimesnsions.php",
             dataType: 'json',
             success: function (Data) {
-               console.log(Data);
+               //console.log(Data);
                if (Data[0].FLAG == "OKK") {
                   var n = Data.length;
 
@@ -1726,20 +1680,20 @@
                }
                else if (Data[0].FLAG == "NORECORD") {
                   console.log("No Record Found");
-                  alert("No Record Found");
+                  swal("No Record Found", '', 'info');
                }
                else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                   console.log('Error In Executing Query');
-                  alert("Something Went Wrong");
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log("Other Response FOund");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log("Erroe In ./SearchAndManageProductAjax/getAllDimesnsions.php   AJax Call");
-               alert("Soething Went Wrong");
+               swal('Something Went Wrong', '', 'error');
             }
          });
       }
@@ -1752,7 +1706,7 @@
             url: "./SearchAndManageProductAjax/getQtyPerUnit.php",
             dataType: 'json',
             success: function (Data) {
-               console.log(Data);
+               //console.log(Data);
                if (Data[0].FLAG == "OKK") {
                   var n = Data.length;
 
@@ -1762,20 +1716,20 @@
                }
                else if (Data[0].FLAG == "NORECORD") {
                   console.log("No Record Found");
-                  alert("No Record Found");
+                  swal("No Record Found", '', 'warning');
                }
                else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                   console.log('Error In Executing Query');
-                  alert("Something Went Wrong");
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log("Other Response FOund");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log("Erroe In ./SearchAndManageProductAjax/getAllDimesnsions.php   AJax Call");
-               alert("Soething Went Wrong");
+               swal('Something Went Wrong', '', 'error');
             }
          });
       }
@@ -1792,7 +1746,7 @@
             url: "./SearchAndManageProductAjax/getProductTypeColor.php",
             dataType: 'json',
             success: function (Data) {
-               console.log(Data);
+               //console.log(Data);
                if (Data[0].FLAG == "OKK") {
                   var n = Data.length;
 
@@ -1802,20 +1756,20 @@
                }
                else if (Data[0].FLAG == "NORECORD") {
                   console.log("No Record Found");
-                  alert("No Record Found");
+                  swal("No Record Found", '', 'warning');
                }
                else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                   console.log('Error In Executing Query');
-                  alert("Something Went Wrong");
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log("Other Response FOund");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log("Erroe In  ./SearchAndManageProductAjax/getProductTypeColor.php AJax Call");
-               alert("Soething Went Wrong");
+               swal('Something Went Wrong', '', 'error');
             }
          });
       }
@@ -1828,7 +1782,7 @@
             url: "./SearchAndManageProductAjax/getCode.php",
             dataType: 'json',
             success: function (Data) {
-               console.log(Data);
+               //console.log(Data);
                if (Data[0].FLAG == "OKK") {
                   var n = Data.length;
 
@@ -1838,20 +1792,20 @@
                }
                else if (Data[0].FLAG == "NORECORD") {
                   console.log("No Record Found");
-                  alert("No Record Found");
+                  swal("No Record Found", '', 'warning');
                }
                else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                   console.log('Error In Executing Query');
-                  alert("Something Went Wrong");
+                  swal('Something Went Wrong', '', 'error');
                }
                else {
                   console.log("Other Response FOund");
-                  alert('Something Went Wrong');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log("Erroe In  ./SearchAndManageProductAjax/getCode.php AJax Call");
-               alert("Soething Went Wrong");
+               swal('Something Went Wrong', '', 'error');
             }
          });
       }
@@ -1865,33 +1819,31 @@
    function ReloadTable() {
 
       $("#data_table tbody").empty();
-      //console.log('EMPRTY');
 
-      let query = "SELECT * FROM `productmst` join brandnames, grades, subcategories, categories WHERE productmst.BrandId = brandnames.BrandId and productmst.GradeId = grades.GradeId and subcategories.subcategory_id= productmst.ProductSubCategoryID and subcategories.category_id= categories.category_id and productmst.RecStatus = true  ";
+
+      let query = "SELECT *, productmst.RecStatus as recordstatus FROM `productmst` join brandnames, grades, subcategories, categories WHERE productmst.BrandId = brandnames.BrandId and productmst.GradeId = grades.GradeId and subcategories.subcategory_id= productmst.ProductSubCategoryID and subcategories.category_id= categories.category_id   ";
 
       let validflag = 0;
 
       if ($('#categoriesCheck').prop('checked') == true) {
 
          if ($("#category_name").val() != '-1') {
-            // query = query + " and category_name='" + $("#category_name option:selected").html() + "' ";
             query = query + " and subcategories.category_id='" + $("#category_name").val() + "' ";
          }
          else {
             validflag = 1;
-            alert("Please Select Category");
+            swal("Please Select Category", '', 'warning');
          }
       }
 
       if ($('#subcategoriesCheck').prop('checked') == true) {
 
          if ($('#subcategories').val() != '-1') {
-            // query = query + " and subcategory_name='" + $('#subcategories option:selected').html() + "' ";
             query = query + " and productmst.ProductSubCategoryID='" + $('#subcategories').val() + "' ";
          }
          else {
             validflag = 1;
-            alert("Please Select Subcategory");
+            swal("Please Select Subcategory", '', 'warning');
          }
       }
 
@@ -1902,7 +1854,7 @@
          }
          else {
             validflag = 1;
-            alert("Please Enter HSN Code");
+            swal("Please Enter HSN Code", '', 'warning');
          }
       }
 
@@ -1913,7 +1865,7 @@
          }
          else {
             validflag = 1;
-            alert("Please Enter Type/Color Code");
+            swal("Please Enter Type/Color Code", '', 'warning');
          }
       }
 
@@ -1924,7 +1876,7 @@
          }
          else {
             validflag = 1;
-            alert('Please Select Brand Name');
+            swal('Please Select Brand Name', '', 'warning');
          }
       }
 
@@ -1935,7 +1887,7 @@
          }
          else {
             validflag = 1;
-            alert('Please Select Dimension');
+            swal('Please Select Dimension', '', 'warning');
          }
       }
 
@@ -1946,7 +1898,7 @@
          }
          else {
             validflag = 1;
-            alert('Please Select Qty Per Unit');
+            swal('Please Select Qty Per Unit', '', 'warning');
          }
       }
 
@@ -1957,7 +1909,7 @@
          }
          else {
             validflag = 1;
-            alert('Please Select Packing Unit');
+            swal('Please Select Packing Unit', '', 'warning');
          }
       }
 
@@ -1968,7 +1920,7 @@
          }
          else {
             validflag = 1;
-            alert('Please Select Grade');
+            swal('Please Select Grade', '', 'warning');
          }
       }
 
@@ -1979,7 +1931,7 @@
          }
          else {
             validflag = 1;
-            alert('Please Select Code No. / Design No. / Model No.');
+            swal('Please Select Code No. / Design No. / Model No.','', 'warning');
          }
       }
 
@@ -1990,24 +1942,24 @@
          }
          else {
             validflag = 1;
-            alert('Please Select GST');
+            swal('Please Select GST', '', 'warning');
          }
       }
 
       if (validflag == 0) {
 
-         console.log(query);
+         //console.log(query);
          $.ajax({
             method: "POST",
             url: "./SearchAndManageProductAjax/searchByParam.php",
             data: { query: query },
             dataType: 'json',
             success: function (Data) {
-               console.log(Data);
+               //console.log(Data);
 
                if (Data[0].FLAG == "RECORDFOUND") {
                   let n = Data.length;
-                  console.log(Data);
+                  //console.log(Data);
 
                   for (let i = 1; i < n; i++) {
                      var type = Data[i].type;
@@ -2022,7 +1974,20 @@
                      var code = Data[i].code;
                      var gst = Data[i].gst;
                      var productid = Data[i].productid;
+                     var recstatus = Data[i].recstatus;
                      //$('.edititem #pid').val(productid);
+
+                     var btncolor = '';
+                     var btntext = '';
+
+                     if (recstatus == 1) {
+                        btncolor = 'btn-danger';
+                        btntext = 'Deactive';
+                     }
+                     else {
+                        btncolor = 'btn-success';
+                        btntext = 'Active';
+                     }
 
                      $('#data_table tbody:last-child').append(
                         '<tr>' +
@@ -2037,21 +2002,22 @@
                         '<td>' + grade + '</td>' +
                         '<td>' + code + '</td>' +
                         '<td>' + gst + '</td>' +
-                        '<td><input type="button" class="btn btn-primary editbtn" pid="' + productid + '" value="Edit"> <input type="button" class="btn btn-primary" value="Delete" onclick="SomeDeleteRowFunction(this)"></center></td>' +
+                        '<td>' + 
+                           '<input type="button" class="btn btn-primary editbtn" pid="' + productid + '" value="Edit"> ' +
+                           ' <input type="button" class="btn ' + btncolor + '  changestatus" value="' + btntext + '"  productid="' + productid + '"  recstatus="' + recstatus + '"></td>' +
                         '</tr>');
                   }
 
                }
                else if (Data[0].FLAG == "NORECORDFOUND") {
-                  alert('NO Record Found For Your Search Result');
+                  swal('NO Record Found For Your Search Result', '', 'info');
                }
                else if (Data[0].FLAG == "ERRORINQUERY") {
-                  alert('Error In Query');
+                  swal('Something Went Wrong', '', 'error');
                }
             },
             error: function (Data) {
                console.log("Error In ./SearchAndManageProductAjax/searchByParam.php  Ajax Call");
-               console.log(Data.responseText);
             }
          });
       }

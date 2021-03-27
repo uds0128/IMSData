@@ -6,7 +6,7 @@
 
     if(!empty($mydata))
     {
-        mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
+       
 
         $pid = $mydata['pid'];
         $type = $mydata['type'];
@@ -40,6 +40,7 @@
 
             if($noofrecord == 0)
             {
+                mysqli_autocommit($conn, false);
                 $updatequery = "UPDATE ProductMst SET "
                 ."  ProductSubCategoryID = ".$subtypeid.", "
                 ."  ProductTypeColor='".$producttypeorcolor."', "
@@ -58,15 +59,20 @@
                 {
                     if(!mysqli_commit($conn))
                     {
+                        mysqli_rollback($conn);
+                        mysqli_autocommit($conn, true);
                         die("-6");  //  -3 => Commit Fail
                     }
                     else
                     {
+                        mysqli_autocommit($conn, true);
                         echo "1"; //  1 => Success
                     }
                 }
                 else
                 {
+                    mysqli_rollback($conn);
+                    mysqli_autocommit($conn, true);
                     die("-5");  //   -5 => Error In Update Query 
                 }
             }

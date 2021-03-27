@@ -1,7 +1,7 @@
 <?php
     include('./config.php');
 
-    $query = "SELECT * FROM subcategories join brandnames, brandmapp where subcategories.subcategory_id = brandmapp.SubcategoryId and brandmapp.BrandId = brandnames.BrandId and subcategory_id=".$_POST['subcatid'];
+    $query = "SELECT * FROM subcategories join brandnames, brandmapp where subcategories.subcategory_id = brandmapp.SubcategoryId and brandmapp.BrandId = brandnames.BrandId and subcategory_id=".$_POST['subcatid']."   and brandmapp.RecStatus = true";
 
     $result = mysqli_query($conn, $query);
     
