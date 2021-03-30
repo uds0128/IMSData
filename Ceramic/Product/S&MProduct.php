@@ -253,8 +253,9 @@
                            <div class="col-md-4">
                               <select class='form-select' name="" id="getpackingunit" disabled>
                                  <option value="-1">Select</option>
-                                 <option value="kg">KG</option>
-                                 <option value="Piece">Peice</option>
+                                 <option value="KG">KG</option>
+                                 <option value="PIECE">PEICE</option>
+                                 <option value="BOX">BOX</option>
                               </select>
                            </div>
                         </div>
@@ -483,6 +484,7 @@
                            <select class='form-select' name="" id="getPackingUnit">
                               <option value="KG">KG</option>
                               <option value="PIECE">PEICE</option>
+                              <option value="BOX">BOX</option>
                            </select>
                         </div>
                      </div>

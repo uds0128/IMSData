@@ -274,7 +274,7 @@
                 let gst = $("#selectgst").val();
                 let myobj = { scid: id, scname: subcategory_name, hsncode: hsncode, gst: gst };
 
-                if (subcategory_name != '' && scid != '' && hsncode != '' && gst != '') {
+                if (subcategory_name != '' && id != '-1' && hsncode != '' && gst != '') {
                     $.ajax({
                         type: "POST",
                         url: './ManageSubCategoryAjax/editSubCategory.php',
@@ -283,34 +283,66 @@
                             //console.log(Data);
                             if (Data == "1") {
                                 swal('Succesfully Updated Subcategory', '', 'success').then(() => {
-                                    $('#getSubCategoryId').val('');
-                                    $("#getSubCategoryName").val('');
-                                    $("#getSubCategoryName").prop('disabled', true);
-                                    $("#getOldSubCategoryName").val('');
-                                    $("#OldSubCategoryLabel").attr('hidden', true);
-                                    $("#getOldSubCategoryName").attr('hidden', true);
-                                    $("#getHSNCode").val('');
-                                    $("#getHSNCode").prop('disabled', true);
-                                    $("#OldHSNCodeLabel").attr('hidden', true);
-                                    $("#OldHSNCode").attr('hidden', true);
-                                    $("#addcheck").prop("checked", false);
-                                    $("#addbtn").attr('disabled', true);
-                                    $("#savebtn").attr('disabled', true);
-                                    $("#cancelbtn").attr('disabled', true);
-                                    $("#loadbtn").attr('disabled', false);
-                                    editflag = false;
-                                    $("#categories_name").prop('disabled', false);
-                                    $("#OldGstLabel").prop('hidden', true);
-                                    $("#OldGst").prop('hidden', true);
-                                    $("#OldGst").val("");
-                                    $("#selectgst").val('-1');
-                                    $("#selectgst").prop('disabled', true);
+                                    ReloadSettings();
                                     ReloadTable();
                                 });
                             }
                             else if (Data == "-3") {
                                 console.log('RECORD FOUND');
-                                swal('Subcategory Already Exists','','info');
+                                //swal('Subcategory Already Exists', '', 'info');
+                                swal({
+                                    title: "It Seems Subcategory Already Exists",
+                                    text: "Do you Want To Update GST Or HSN Code For This Subcategory",
+                                    icon: "warning",
+                                    buttons: true,
+                                    dangerMode: true,
+                                    buttons: ["NO", "YES"],
+                                })
+                                    .then((willDelete) => {
+                                        if (willDelete) {
+
+                                            if (subcategory_name != '' && id != '-1' && hsncode != '' && gst != '') {
+                                                $.ajax({
+                                                    type: "POST",
+                                                    url: "./ManageSubCategoryAjax/updateGSTORHSN.php",
+                                                    data: { scid: id, scname: subcategory_name, hsncode: hsncode, gst: gst },
+                                                    success: function (Data) {
+                                                        console.log(Data);
+                                                        if(Data == 1){
+                                                            swal('Successfully Updated HSN Code And GST', '', 'success').then(()=>{
+                                                                ReloadSettings();
+                                                                ReloadTable();
+                                                            });
+                                                        }
+                                                        else if(Data == "-1"){
+                                                            console.log(' parameter empty');
+                                                            swal('Something Went Wrong', '', 'error');
+                                                        }
+                                                        else if(Data == "-2"){
+                                                            console.log('commit fail');
+                                                            swal('Something Went Wrong', '', 'error');
+                                                        }
+                                                        else if(Data == '-3'){
+                                                            console.log('Error While Executing Query');
+                                                            swal('Something Went Wrong', '', 'error');
+                                                        }
+                                                    },
+                                                    error: function (Data) {    
+                                                        console.log('ERROR IN ./ManageSubCategoryAjax/updateGSTORHSN.php  AJax Call');
+                                                        swal('Something Went Wrong', '', 'error');
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                swal('Please Fill All The Fields', '', 'warning');
+                                            }
+
+                                        }
+                                        else {
+                                            console.log('ABORTED proccess of updateing gst and HSN Code');
+                                            ReloadSettings();
+                                        }
+                                    });
                             }
                             else if (Data == "-1") {
                                 console.log('Commit Fail');
@@ -345,9 +377,9 @@
 
                 }
                 else {
-                    swal("Please Fill All The Field", '', 'info').then(()=>{
+                    swal("Please Fill All The Field", '', 'info').then(() => {
                         location.reload(true);
-                    });           
+                    });
                 }
             });
 
@@ -652,6 +684,31 @@
 
         }
 
+        function ReloadSettings() {
+            $('#getSubCategoryId').val('');
+            $("#getSubCategoryName").val('');
+            $("#getSubCategoryName").prop('disabled', true);
+            $("#getOldSubCategoryName").val('');
+            $("#OldSubCategoryLabel").attr('hidden', true);
+            $("#getOldSubCategoryName").attr('hidden', true);
+            $("#getHSNCode").val('');
+            $("#getHSNCode").prop('disabled', true);
+            $("#OldHSNCodeLabel").attr('hidden', true);
+            $("#OldHSNCode").attr('hidden', true);
+            $("#addcheck").prop("checked", false);
+            $("#addbtn").attr('disabled', true);
+            $("#savebtn").attr('disabled', true);
+            $("#cancelbtn").attr('disabled', true);
+            $("#loadbtn").attr('disabled', false);
+            editflag = false;
+            $("#categories_name").prop('disabled', false);
+            $("#OldGstLabel").prop('hidden', true);
+            $("#OldGst").prop('hidden', true);
+            $("#OldGst").val("");
+            $("#selectgst").val('-1');
+            $("#selectgst").prop('disabled', true);
+            //ReloadTable();
+        }
     </script>
 </body>
 

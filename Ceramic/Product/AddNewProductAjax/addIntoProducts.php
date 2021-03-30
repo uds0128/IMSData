@@ -14,13 +14,18 @@
         $type = $mydata[$i]['Type'];
         $subcatid = $mydata[$i]['SubCategoryId'];
         $typeorcolor = $mydata[$i]['Type/Color'];
+        $typeorcolor = ucwords(strtoupper($typeorcolor));
+        $typeorcolor = trim(preg_replace('/\s+/',' ', $typeorcolor));
         $brandid = $mydata[$i]['BrandId'];
         $dimension = $mydata[$i]['Dimension'];
+        /*$dimension = ucwords(strtolower($dimension));
+        $dimension = trim(preg_replace('/\s+/',' ', $dimension));*/
         $qty = $mydata[$i]['Qty'];
         $packingunit = $mydata[$i]['PackingUnit'];
         $gradeid = $mydata[$i]['GradeId'];
         $code = $mydata[$i]['Code'];
-        
+        $code = ucwords(strtolower($code));
+        $code = trim(preg_replace('/\s+/',' ', $code));
 
         $searchIntoProductMst = "SELECT COUNT(1) AS noofrecord FROM productmst WHERE "
                     ."ProductSubCategoryID='".$subcatid."' AND "

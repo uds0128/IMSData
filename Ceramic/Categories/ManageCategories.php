@@ -238,7 +238,7 @@
                             if (Data) {
 
                                 if (Data == '1') {
-                                    swal('Categoey Updated Successfully', '', 'success').then(()=>{location.reload(true)});
+                                    swal('Category Updated Successfully', '', 'success').then(()=>{location.reload(true)});
                                 }
                                 else if (Data = '-3') {
                                     swal('Category Already Exists', '', 'info');
@@ -298,7 +298,7 @@
                             //console.log(Data);
 
                             if (Data == '1') {
-                                swal('Category Added', '', 'success');
+                                swal('Category Added', '', 'success').then(()=>{location.reload(true)});
                                 $('#CategoryName').val('');
                             }
                             else if (Data == '-4') {

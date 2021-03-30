@@ -604,8 +604,9 @@
                console.log(Data);
 
                if (Data == "1") {
-                  swal("Succesfully Inserted", '', 'success');
-                  location.reload(true);
+                  swal("Succesfully Inserted", '', 'success').then(()=>{
+                     location.reload(true);
+                  });
                }
                else if (Data == "-1") {
                   console.log("Commit Fail");

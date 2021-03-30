@@ -12,12 +12,18 @@
         $type = $mydata['type'];
         $subtypeid = $mydata['subtypeid'];
         $producttypeorcolor = $mydata['producttypeorcolor'];
+        $producttypeorcolor = ucwords(strtolower($producttypeorcolor));
+        $producttypeorcolor = trim(preg_replace('/\s+/',' ', $producttypeorcolor));
         $brandid = $mydata['brandid'];
         $dimension = $mydata['dimension'];
+        /*$dimension = ucwords(strtolower($dimension));
+        $dimension = trim(preg_replace('/\s+/',' ', $dimension));*/
         $qtyperunit = $mydata['qtyperunit'];
         $packingunit = $mydata['packingunit'];
         $gradeid = $mydata['gradeid'];
         $code = $mydata['code'];
+        $code = ucwords(strtolower($code));
+        $code = trim(preg_replace('/\s+/',' ', $code));
 
         $checkForRecords = "SELECT COUNT(1) AS noofrecord FROM ProductMst Where "
                         ."  ProductSubCategoryID = ".$subtypeid." AND "

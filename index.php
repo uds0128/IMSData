@@ -70,11 +70,11 @@
    <h1 align="center"><span class="edina_tm_animation_text_word"></span></h1>
 <div class="row">
   <div class="column">
-    <a href="./Balaji/balajilogin.php"><img src="Balaji/balaji.svg" alt="Balaji Ceramic" id="balaji" style="width:50%"></a>
+    <a href="temp.html"><img src="Balaji/balaji.svg" alt="Balaji Ceramic" id="balaji" style="width:50%"></a>
     <!-- Balaji/admin.php -->
   </div>
   <div class="column">
-    <a href="./Ceramic/ceramiclogin.php"><img src="Ceramic/assets/images/ceramic.svg" alt="Ceramic Hub" id="ceramic" style="width:50%"></a>
+    <a href="Ceramic/admin.php"><img src="Ceramic/assets/images/ceramic.svg" alt="Ceramic Hub" id="ceramic" style="width:50%"></a>
   </div>
 </div>
 
