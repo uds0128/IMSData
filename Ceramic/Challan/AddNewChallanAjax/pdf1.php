@@ -190,8 +190,8 @@
 
 
 
-
-    $challan_id = $_POST['challanid'];
+    $challan_id=1;
+    /*$challan_id = $_POST['challanid'];
 
     $getCustomerDetails = "SELECT * from challanmst JOIN tblcustomermst where challanmst.RecStatus = true and challanmst.CustomerId = tblcustomermst.CustomerId and challanmst.ChallanId = {$challan_id}";
     echo $getCustomerDetails;
@@ -200,37 +200,37 @@
     {
         $row = $result_getCustomerDetails->fetch_assoc();
         $customer_name = $row['CustomerName'];
-        $challandate = $row['ChallanDate'];
-        $challandate = explode(" ",$challandate);
-        $challandate = $challandate[0];
-        $challandate = explode("-",$challandate);
-        $challandate = $challandate[2].'-'.$challandate[1].'-'.$challandate[0];
         $discount = $row['Discount'];
         $transportation_cost = $row['TransportCost'];
-        $challan_no = $row['ChallanNo'];
+        
+*/
+        $challan_no = str_pad($challan_id,9,"0", STR_PAD_LEFT);
 
-        /*$year = date('Y');
+        $year = date('Y');
         $month = date('m');
         $day = date('d');
-        $today = $day."-".$month."-".$year;*/
+        $today = $day."-".$month."-".$year;
 
         $company_no = 1;
-
-        $pdf = new PDF($customer_name,$challan_no,$challandate,$company_no);
+        $customer_name="Vraj";
+        $discount = 1000;
+        $transportation_cost = 1000;
+        
+        $pdf = new PDF($customer_name,$challan_no,$today,$company_no);
         $pdf->AliasNbPages();
         $pdf->AddPage();
 
-        $getChallanDetails = "SELECT *, challandetails.BillingQty as bill , challandetails.OtherQty as other FROM challandetails join stockdetails,systable,productmst, subcategories, brandnames WHERE challandetails.StockId = stockdetails.StockId  and stockdetails.SysId = systable.SysId and systable.ProductId=productmst.ProductID and productmst.ProductSubCategoryID = subcategories.subcategory_id and challandetails.RecStatus = true and productmst.BrandId = brandnames.BrandId and   challandetails.ChallanId = {$challan_id}";
-        $result_getChallanDetails = mysqli_query($conn, $getChallanDetails);
+       // $getChallanDetails = "SELECT *, challandetails.BillingQty as bill , challandetails.OtherQty as other FROM challandetails join stockdetails,systable,productmst, subcategories, brandnames WHERE challandetails.StockId = stockdetails.StockId  and stockdetails.SysId = systable.SysId and systable.ProductId=productmst.ProductID and productmst.ProductSubCategoryID = subcategories.subcategory_id and challandetails.RecStatus = true and productmst.BrandId = brandnames.BrandId and   challandetails.ChallanId = {$challan_id}";
+       // $result_getChallanDetails = mysqli_query($conn, $getChallanDetails);
 
         //echo $get
         $subtotal = 0;
 
-        if($result_getChallanDetails)
+        /*if($result_getChallanDetails)
         {
             $n = $result_getChallanDetails->num_rows;
-            //echo $n;
-            for($i=0; $i<$n; $i++)
+            //echo $n;*/
+            for($i=0; $i<24; $i++)
             {
                 if($i % 24 == 0 && $i != 0)
                 {
@@ -238,9 +238,9 @@
                     $pdf->AddPage();
                 }
 
-                $r = $result_getChallanDetails->fetch_assoc();
+//                $r = $result_getChallanDetails->fetch_assoc();
 
-                $subcategory_name = $r['subcategory_name'];
+                /*$subcategory_name = $r['subcategory_name'];
                 $sizeordimension = $r['SizeOrDimension'];
                 $qtyperunit = $r['QtyPerUnit'];
                 $packingunit = $r['PackingUnit'];
@@ -248,7 +248,17 @@
                 $billingqty = $r['bill'];
                 $otherqty = $r['other'];
                 $brandname = $r['BrandName'];
-                $batchno = $r['BatchNo'];
+                $batchno = $r['BatchNo'];*/
+
+                $subcategory_name = 'subcategory_name';
+                $sizeordimension = 'N/A';
+                $qtyperunit = '12';
+                $packingunit = 'KG';
+                $selling_price = 1200;
+                $billingqty = 10;
+                $otherqty = 20;
+                $brandname = 'Vraj';
+                $batchno = '101';
 
                 //echo $sizeordimension;
                 //echo $qtyperunit;
@@ -280,28 +290,28 @@
             $pdf->Cell(25, 6, 'Sub Total', 1, 0, 'L');
             $pdf->Cell(30, 6, number_format((float) $subtotal, 2, '.', ''), 1, 1, 'R');
             $pdf->cal($amount);
-            $pdf->Cell(25, 6, 'Transport', 1, 0, 'L');
-            $pdf->Cell(30, 6, number_format((float) $transportation_cost, 2, '.', ''), 1, 1, 'R');
-            $pdf->Cell(135, 6, '', 0, 0, 'L');
             $pdf->Cell(25, 6, 'Discount', 1, 0, 'L');
-            $pdf->Cell(30, 6, number_format((float) $discount, 2, '.', ''), 1, 1, 'R');
+            $pdf->Cell(30, 6, $discount, 1, 1, 'R');
+            $pdf->Cell(135, 6, '', 0, 0, 'L');
+            $pdf->Cell(25, 6, 'Transport', 1, 0, 'L');
+            $pdf->Cell(30, 6, $transportation_cost, 1, 1, 'R');
             $pdf->Cell(135, 6, '', 0, 0, 'L');
             $pdf->Cell(25, 6, 'Amount', 1, 0, 'L');
             $pdf->Cell(30, 6, number_format((float) $amount, 2, '.', ''), 1, 1, 'R');
 
             $pdf->Output();
-        }
-        else
-        {
+        //}
+        //else
+        //{
 
-        }
+        //}
     
         
-    }
-    else
-    {
-        echo "Something Went Wrong";
-    }
+    //}
+    //else
+    //{
+      //  echo "Something Went Wrong";
+    //}
 
     
     //echo $challan_id;

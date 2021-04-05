@@ -18,8 +18,8 @@
                 $base_price = $row['BasePrice'];
                 $date_added = $row['DateAdded'];
                 $stock_id = $row['StockId'];
-
-                $obj = array('billingqty' => $billing_qty, 'otherqty' => $other_qty, 'baseprice' => $base_price, 'dateAdded' => $date_added, 'stockid' => $stock_id);
+                $batch_no = $row['BatchNo'];
+                $obj = array('billingqty' => $billing_qty, 'otherqty' => $other_qty, 'baseprice' => $base_price, 'dateAdded' => $date_added, 'stockid' => $stock_id, 'batchno' => $batch_no);
                 $dataToBeSent[] =$obj;
             }
             echo json_encode($dataToBeSent);

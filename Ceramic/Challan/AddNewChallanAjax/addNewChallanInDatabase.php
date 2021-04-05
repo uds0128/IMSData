@@ -5,22 +5,67 @@
     $mydata = json_decode($data, true);
     
     $custid = $mydata[0]['customerId'];
+    $challandate = $mydata[0]['challandate'];
+    $challandate = $challandate.' 00:00:00'; 
     $totalamt=$mydata[0]['totalamt'];
     $discount=$mydata[0]['discount'];
     $transport=$mydata[0]['transport'];
+    $extracost=$mydata[0]['extracost'];
+    $extracostdesc=$mydata[0]['extracostdesc'];
+    $advancepayment=$mydata[0]['advancepayment'];
 
+    $yyyymm = substr($challandate, 0, 7);
+    $tempyyyymm = explode("-", $yyyymm);
+    $yyyymm = $tempyyyymm[0].$tempyyyymm[1];
     $dataToBeSent = array();
-    mysqli_begin_transaction($conn, MYSQLI_TRANS_START_READ_WRITE);
+
+    $getLastMonthId = "SELECT last_no as lastmonthid FROM challanno where month='{$yyyymm}'";
+    $result_getLastMonthId = mysqli_query($conn, $getLastMonthId);
+
+    if($result_getLastMonthId){
+        if($result_getLastMonthId->num_rows > 0){
+            $r = $result_getLastMonthId->fetch_assoc();
+            $last_id_of_month = $r['lastmonthid'];
+        }
+        else{
+            $insertNewMonth = "INSERT INTO challanno (month, last_no) VALUES ('{$yyyymm}', 1)";
+            $result_insertNewMonth = mysqli_query($conn, $insertNewMonth);
+            if(!$result_insertNewMonth){
+                $flag = array('FLAG' => 'ERRINM'); // ERRINM => Error In Inserting Month
+                $dataToBeSent[] = $flag;
+                die (json_encode($dataToBeSent));
+            }
+            else{
+                $last_id_of_month = 1;
+            }
+        }
+    }
+    else{
+        $flag = array('FLAG' => 'ERRINGLMID'); // ERRINGLMID => Error In Getting Last Month Id
+        $dataToBeSent[] = $flag;
+        die (json_encode($dataToBeSent));
+    }
+    
     if($custid!=""){
         $n=count($mydata);
+        mysqli_autocommit($conn,false);
         
-        $insertIntoChallanMst = "INSERT into challanmst (CustomerId, TotalAmount, Discount, TransportCost) value (".$custid.", ".$totalamt.", ".$discount.", ".$transport.")";
+        $challanno = str_pad($last_id_of_month,4,"0", STR_PAD_LEFT);
+        $challanno = $yyyymm.$challanno;
+
+        
+        if($advancepayment == 0){
+            $dueamount = 0;
+        }
+        else{
+            $dueamount = floatval($totalamt) - floatval($discount) + floatval($transport) - floatval($advancepayment) + floatval($extracost);
+        }
+        //die($dueamount);
+        $insertIntoChallanMst = "INSERT into challanmst (ChallanNo, ChallanDate, CustomerId, TotalAmount, Discount, TransportCost, ExtraCostDesc, ExtraCost, DueAmount) value ('".$challanno."','".$challandate."',".$custid.", ".$totalamt.", ".$discount.", ".$transport.", '".$extracostdesc."', ".$extracost.", ".$dueamount.")";
         $resultinsertIntoChallanMst = mysqli_query($conn,$insertIntoChallanMst);
 
         if($resultinsertIntoChallanMst){
-            $last_Challan_id = mysqli_insert_id($conn);
-
-            
+            $last_Challan_id = mysqli_insert_id($conn);            
             $insertIntoChallanDetails="";
             $updateIntoStockMst="";
             $billingQty= " BillingQty = BillingQty - ";
@@ -36,38 +81,51 @@
                 $resultupdateIntoStockMst = mysqli_query($conn,$updateIntoStockMst);
                 if(!$resultinsertIntoChallanDetails || !$resultupdateIntoStockMst)
                 {
+                    mysqli_rollback($conn);
+                    mysqli_autocommit($conn,true);
                     $flag = array('FLAG' => 'MIDERR');
                     $dataToBeSent[] = $flag;
-                    echo json_encode($dataToBeSent);
+                    die (json_encode($dataToBeSent));
                 }
                 $insertIntoChallanDetails ="";
                 $resultinsertIntoChallanDetails = null;
                 $updateIntoStocksMst = "";
                 $resultupdateIntoStocksMst = null;
             }
-            if(!mysqli_commit($conn)){
-                $flag = array('FLAG' => 'ERRCOMMIT');
+
+            $update_last_challan_of_month = "UPDATE challanno set last_no = last_no + 1 WHERE month='{$yyyymm}'";
+            $result_update_last_challan_of_month = mysqli_query($conn, $update_last_challan_of_month);
+            if(!$result_update_last_challan_of_month){
+                $flag = array('FLAG' => 'ERRINULMID'); // ERRINULMID => Error In Updating Last Challan No Of Month
                 $dataToBeSent[] = $flag;
-                echo json_encode($dataToBeSent);
-            }else{
+                die (json_encode($dataToBeSent));
+            }
+
+            if(mysqli_commit($conn)){
+                
+                mysqli_autocommit($conn,true);
                 $flag = array('FLAG' => 'SUCCESS');
                 $dataToBeSent[] = $flag;
-
                 $obj = array('CHALLANID' => $last_Challan_id);
                 $dataToBeSent[] = $obj;
                 echo json_encode($dataToBeSent);
+            }else{
+                mysqli_rollback($conn);
+                mysqli_autocommit($conn,true);
+                $flag = array('FLAG' => 'ERRCOMMIT');
+                $dataToBeSent[] = $flag;
+                die (json_encode($dataToBeSent));
             }
-
         }else{
             $flag = array('FLAG' => 'ERRINSERTMST');
             $dataToBeSent[] = $flag;
-            echo json_encode($dataToBeSent);
+            die (json_encode($dataToBeSent));
         }
     }
     else
     {
         $flag = array('FLAG' => 'PARAMEMPTY');
         $dataToBeSent[] = $flag;
-        echo json_encode($dataToBeSent);   
+        die (json_encode($dataToBeSent));   
     }
 ?>
