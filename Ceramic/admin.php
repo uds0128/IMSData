@@ -141,7 +141,7 @@
                                 <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-account-box"></i> <span>Challan </span> <span class="menu-arrow"></span></a>
                                 <ul class="list-unstyled">
                                     <li><a href="Challan/addNewChallan.php">New Challan</a></li>
-                                    <li><a href="temp.html">Search & Manage Challan</a></li>           
+                                    <li><a href="Challan/searchAndManageChallan.php">Search & Manage Challan</a></li>           
                                 </ul>
                             </li>
 

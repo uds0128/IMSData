@@ -74,7 +74,7 @@
     <!-- Balaji/admin.php -->
   </div>
   <div class="column">
-    <a href="Ceramic/admin.php"><img src="Ceramic/assets/images/ceramic.svg" alt="Ceramic Hub" id="ceramic" style="width:50%"></a>
+    <a href="Ceramic/ceramiclogin.php"><img src="Ceramic/assets/images/ceramic.svg" alt="Ceramic Hub" id="ceramic" style="width:50%"></a>
   </div>
 </div>
 

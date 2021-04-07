@@ -982,6 +982,10 @@
                         }
                         paymentAdvance = $("#Amt").val();
                     }   
+                    else{
+                        paymentAdvance = parseFloat($("#subtotal").val());
+
+                    }
                 }
                 else {
                     swal("Payment Details Empty ", 'Select Complete Payment Or Partial Payment', 'info');
@@ -1129,7 +1133,7 @@
                 } else {
                     console.log("CustomerId is Null");
                     swal('Please Fill All The Details', '', 'error');
-                }
+                }*/
             } else {
                 swal("No Items Selected", '', 'error');
             }
