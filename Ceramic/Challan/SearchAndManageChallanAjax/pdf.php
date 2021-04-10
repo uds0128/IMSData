@@ -141,7 +141,7 @@
                 'Hundred',
                 'Thousand',
                 'Lakh',
-                'Caror'
+                'Crore'
             );
     
     
@@ -193,7 +193,7 @@
 
     $challan_id = $_POST['challanid'];
 
-    $getCustomerDetails = "SELECT * from challanmst JOIN tblcustomermst where challanmst.CustomerId = tblcustomermst.CustomerId and challanmst.ChallanId = {$challan_id}";
+    $getCustomerDetails = "SELECT * from challanmst JOIN tblcustomermst where challanmst.RecStatus = true and challanmst.CustomerId = tblcustomermst.CustomerId and challanmst.ChallanId = {$challan_id}";
     echo $getCustomerDetails;
     $result_getCustomerDetails = mysqli_query($conn, $getCustomerDetails);
     if($result_getCustomerDetails)
@@ -207,9 +207,9 @@
         $challandate = $challandate[2].'-'.$challandate[1].'-'.$challandate[0];
         $discount = $row['Discount'];
         $transportation_cost = $row['TransportCost'];
+        $other_cost = $row['ExtraCost'];
         $challan_no = $row['ChallanNo'];
 
-        echo $customer_name;
         /*$year = date('Y');
         $month = date('m');
         $day = date('d');
@@ -233,7 +233,7 @@
             //echo $n;
             for($i=0; $i<$n; $i++)
             {
-                if($i % 24 == 0 && $i != 0)
+                if($i % 22 == 0 && $i != 0)
                 {
                     $pdf->Cell(190, 0, '','T', 1, 'L');
                     $pdf->AddPage();
@@ -274,7 +274,7 @@
 
             }
 
-            $amount = $subtotal-$discount+$transportation_cost;
+            $amount = $subtotal-$discount+$transportation_cost+$other_cost;
 
             $pdf->SetFont('Times','B',12);
             $pdf->Cell(135, 6, 'Amount In Words : ', 'T', 0, 'L');
@@ -284,13 +284,16 @@
             $pdf->Cell(25, 6, 'Transport', 1, 0, 'L');
             $pdf->Cell(30, 6, number_format((float) $transportation_cost, 2, '.', ''), 1, 1, 'R');
             $pdf->Cell(135, 6, '', 0, 0, 'L');
+            $pdf->Cell(25, 6, 'Other', 1, 0, 'L');
+            $pdf->Cell(30, 6, number_format((float) $other_cost, 2, '.', ''), 1, 1, 'R');
+            $pdf->Cell(135, 6, '', 0, 0, 'L');
             $pdf->Cell(25, 6, 'Discount', 1, 0, 'L');
             $pdf->Cell(30, 6, number_format((float) $discount, 2, '.', ''), 1, 1, 'R');
             $pdf->Cell(135, 6, '', 0, 0, 'L');
             $pdf->Cell(25, 6, 'Amount', 1, 0, 'L');
             $pdf->Cell(30, 6, number_format((float) $amount, 2, '.', ''), 1, 1, 'R');
 
-            $pdf->Output($challan_no.".pdf", 'I');
+            $pdf->Output();
         }
         else
         {

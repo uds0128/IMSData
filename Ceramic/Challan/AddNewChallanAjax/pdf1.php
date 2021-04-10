@@ -141,7 +141,7 @@
                 'Hundred',
                 'Thousand',
                 'Lakh',
-                'Caror'
+                'Crore'
             );
     
     
@@ -230,9 +230,9 @@
         {
             $n = $result_getChallanDetails->num_rows;
             //echo $n;*/
-            for($i=0; $i<24; $i++)
+            for($i=0; $i<30; $i++)
             {
-                if($i % 24 == 0 && $i != 0)
+                if($i % 22 == 0 && $i != 0)
                 {
                     $pdf->Cell(190, 0, '','T', 1, 'L');
                     $pdf->AddPage();
@@ -284,7 +284,7 @@
             }
 
             $amount = $subtotal-$discount+$transportation_cost;
-
+            $other_cost=100;
             $pdf->SetFont('Times','B',12);
             $pdf->Cell(135, 6, 'Amount In Words : ', 'T', 0, 'L');
             $pdf->Cell(25, 6, 'Sub Total', 1, 0, 'L');
@@ -295,6 +295,9 @@
             $pdf->Cell(135, 6, '', 0, 0, 'L');
             $pdf->Cell(25, 6, 'Transport', 1, 0, 'L');
             $pdf->Cell(30, 6, $transportation_cost, 1, 1, 'R');
+            $pdf->Cell(135, 6, '', 0, 0, 'L');
+            $pdf->Cell(25, 6, 'Other', 1, 0, 'L');
+            $pdf->Cell(30, 6, $other_cost, 1, 1, 'R');
             $pdf->Cell(135, 6, '', 0, 0, 'L');
             $pdf->Cell(25, 6, 'Amount', 1, 0, 'L');
             $pdf->Cell(30, 6, number_format((float) $amount, 2, '.', ''), 1, 1, 'R');

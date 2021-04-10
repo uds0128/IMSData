@@ -61,7 +61,7 @@
             $dueamount = floatval($totalamt) - floatval($discount) + floatval($transport) - floatval($advancepayment) + floatval($extracost);
         }
         //die($dueamount);
-        $insertIntoChallanMst = "INSERT into challanmst (ChallanNo, ChallanDate, CustomerId, TotalAmount, Discount, TransportCost, ExtraCostDesc, ExtraCost, DueAmount) value ('".$challanno."','".$challandate."',".$custid.", ".$totalamt.", ".$discount.", ".$transport.", '".$extracostdesc."', ".$extracost.", ".$dueamount.")";
+        $insertIntoChallanMst = "INSERT into challanmst (ChallanNo, ChallanDate, CustomerId, TotalAmount, Discount, TransportCost, ExtraCostDesc, ExtraCost, DueAmount) value ('".$challanno."','".$challandate."',".$custid.", ".$totalamt.", ".$discount.", ".$transport.", '".$extracostdesc."', ".$extracost.",".$dueamount.")";
         $resultinsertIntoChallanMst = mysqli_query($conn,$insertIntoChallanMst);
 
         if($resultinsertIntoChallanMst){
@@ -101,6 +101,18 @@
                 die (json_encode($dataToBeSent));
             }
 
+            if($dueamount == 0){
+                $status = "Complete";
+            }else{
+                $status = "Pending";
+            }
+            $insertIntoInwardPayment = "INSERT INTO tblinwardpayment (InwardId,PaymentDate,AmountPaid,AmountPending,Status,PaymentMode,RoundOffDade,StockMstSysId,ChallanId) value (0,'".$challandate."',".$advancepayment.",".$dueamount.",'".$status."','Customer',0,1,".$last_Challan_id.")";
+            $resultinsertIntoInwardPayment = mysqli_query($conn,$insertIntoInwardPayment);
+            if(!$resultinsertIntoInwardPayment){
+                $flag = array('FLAG' => 'ERRINPAY'); //ERRINPAY => Error in Payment Insertion
+                $dataToBeSent[] = $flag;
+                die (json_encode($dataToBeSent));
+            }
             if(mysqli_commit($conn)){
                 
                 mysqli_autocommit($conn,true);

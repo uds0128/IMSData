@@ -5,6 +5,11 @@
 <head>
     <title>Challan</title>
     <style type="text/css">
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
         .grid1 {
             display: grid;
             width: '100%';
@@ -72,31 +77,31 @@
 
             var tot = parseFloat(document.getElementById('subtotal').value);
             var pen = document.getElementById('Amt').value;
-            if(parseFloat($("#discount").val()) > parseFloat($("#totalcost").val())){
+            if (parseFloat($("#discount").val()) > parseFloat($("#totalcost").val())) {
                 $("#discount").val("0");
                 return;
             }
-            if(pen == ""){
+            if (pen == "") {
                 document.getElementById('rpy').value = 0;
-                return; 
+                return;
             }
-            if(pen > tot){
-                swal("Amount Can't Be Greater Then Sub Total", '', 'info').then(()=>{
-                    document.getElementById('Amt').value = "";
-                    $("#Amt").focus();
-                    document.getElementById('rpy').value = 0;
-                    return;                  
-                });
-            }
-            else if(pen <=0){
-                swal("Amount Can't Be Nagative Or Zero", '', 'info').then(()=>{
+            if (pen > tot) {
+                swal("Amount Can't Be Greater Then Sub Total", '', 'info').then(() => {
                     document.getElementById('Amt').value = "";
                     $("#Amt").focus();
                     document.getElementById('rpy').value = 0;
                     return;
                 });
             }
-            else{
+            else if (pen <= 0) {
+                swal("Amount Can't Be Nagative Or Zero", '', 'info').then(() => {
+                    document.getElementById('Amt').value = "";
+                    $("#Amt").focus();
+                    document.getElementById('rpy').value = 0;
+                    return;
+                });
+            }
+            else {
 
                 var remain = tot - parseFloat(pen);
                 document.getElementById('rpy').value = remain;
@@ -123,11 +128,7 @@
     $month = date('m');
     $day = date('d');
     $year = date('Y');
-    // $num=1;
-    
     $today = $year . '-' . $month . '-' . $day;
-    // $num=str_pad($num, 3, "0", STR_PAD_LEFT);
-    // $challanNo = $year.$month.$num;
 ?>
 
 <body>
@@ -139,7 +140,6 @@
                         <center>
                             <h3 class="card-title" style="color: white">Challan</h3>
                         </center>
-                        <?php //echo $challanNo;?>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -181,7 +181,6 @@
                                 </select>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -195,25 +194,24 @@
                         <select id="category_name" class="form-select col-md-12 resetsearchparam class-category">
                             <option value='-1' selected>Select</option>
                             <?php
-                                      $query = "SELECT category_id ,category_name FROM categories where active_status=true";
-                                      $result = mysqli_query($conn, $query);
-                                        if($result)
-                                        {
-                                            while($row = $result -> fetch_assoc())
-                                            {
-                                                $category_id = $row['category_id'];
-                                                $category_name = $row['category_name'];
-                                                echo
-                                                    //"<option value='".$category_id."' cid=".$category_id.">".$category_name."</option>";
-                                                    "<option value='".$category_id."'>".$category_name."</option>";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            echo "<script>swal('Something Went Wrong', '', 'error');</script>";
-                                            location.reload(true);
-                                        }
-                                     ?>
+                                $query = "SELECT category_id ,category_name FROM categories where active_status=true";
+                                $result = mysqli_query($conn, $query);
+                                if($result)
+                                {
+                                    while($row = $result -> fetch_assoc())
+                                    {
+                                        $category_id = $row['category_id'];
+                                        $category_name = $row['category_name'];
+                                        echo
+                                            "<option value='".$category_id."'>".$category_name."</option>";
+                                    }
+                                }
+                                else
+                                {
+                                    echo "<script>swal('Something Went Wrong', '', 'error');</script>";
+                                    location.reload(true);
+                                }
+                            ?>
                         </select>
                     </div>
 
@@ -320,7 +318,7 @@
 
                 <div class="row mt-3">
                     <div class="col-md-1">
-                        <input type="Button" value="Search" id="searchbtn" class="btn btn-success">
+                        <input type="Button" value="Search" id="searchbtn" class="btn btn-success" style="margin-bottom: 10px;">
                     </div>
                     <div class="col-md-1">
                         <input type="text" id="pid" hidden>
@@ -354,32 +352,31 @@
                 </tbody>
             </table>
         </div>
-        <!--<div class="card card-primary" style="overflow-x:auto; overflow-y: auto; height: 310px;">
-                    <table id="searchedTable">
-                        <thead style="height: 80px;">
-                            <th>Type</th>
-                            <th>Sub<br>Type</th>
-                            <th>Type/<br>Color</th>
-                            <th>Brand</th>
-                            <th>Dimension</th>
-                            <th>Qty/Unit</th>
-                            <th>Packing<br>Unit</th>
-                            <th>Grade</th>
-                            <th>Code</th>
-                            <th>GST</th>
-                            <th>Date</th>
-                            <th>Batch<br>No</th>
-                            <th>Billing<br>Qty</th>
-                            <th>Other<br>Qty</th>
-                            <th>Base<br>Price</th>
-                            <th>Action</th> 
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
-                    </table>
-                </div>-->
-    </div>
+        <!-- <div class="card card-primary" style="overflow-x:auto; overflow-y: auto; height: 310px;">
+            <table id="searchedTable">
+                <thead style="height: 80px;">
+                    <th>Type</th>
+                    <th>Sub<br>Type</th>
+                    <th>Type/<br>Color</th>
+                    <th>Brand</th>
+                    <th>Dimension</th>
+                    <th>Qty/Unit</th>
+                    <th>Packing<br>Unit</th>
+                    <th>Grade</th>
+                    <th>Code</th>
+                    <th>GST</th>
+                    <th>Date</th>
+                    <th>Batch<br>No</th>
+                    <th>Billing<br>Qty</th>
+                    <th>Other<br>Qty</th>
+                    <th>Base<br>Price</th>
+                    <th>Action</th> 
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+        </div> -->
     </div>
 
     <br>
@@ -524,7 +521,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 </body>
 
@@ -918,8 +914,8 @@
                     '<td>' + obj[12] + '</td>' +
                     '<td>' + obj[13] + '</td>' +
                     '<td>' + obj[14] + '</td>' +
-                    '<td width="7%" ><input class="form-control purchase-qty calprice" onkeyup="validateQty(this,' + obj[12] + '); calprice();calsubtotal();" type="number" step="1" id="billingqty_' + $(this).attr("stockid") + '" >' +
-                    '<td width="7%" ><input class="form-control purchase-qty calprice" onkeyup="validateQty(this,' + obj[13] + '); calprice();calsubtotal();" type="number" step="1" id="otherqty_' + $(this).attr("stockid") + '" >' +
+                    '<td width="7%" ><input type="number" step="1" class="form-control purchase-qty calprice" onkeyup="validateQty(this,' + obj[12] + '); calprice();calsubtotal();" id="billingqty_' + $(this).attr("stockid") + '" >' +
+                    '<td width="7%" ><input type="number" step="1" class="form-control purchase-qty calprice" onkeyup="validateQty(this,' + obj[13] + '); calprice();calsubtotal();" id="otherqty_' + $(this).attr("stockid") + '" >' +
                     '<td width="7%" ><input class="form-control selling-price calprice" type="number" onkeyup="calprice();calsubtotal();" id="sellingprice_' + $(this).attr("stockid") + '">' + '</td>' +
                     '<td><button value="Remove" class="btn btn-danger removebtn" stockid="' + $(this).attr('stockid') + '">Remove</button></td>' +
                     '</tr>';
@@ -958,112 +954,94 @@
                     extraCost = $("#extraCost").val();
                     console.log(extraCost);
                     extraCostDesc = $("#extraCostDes").val();
-
-                    if(extraCost == "")
-                    {
+                    if (extraCost == "") {
                         swal("Enter Extra Cost Amount", '', 'info');
                         return;
                     }
-                    if(extraCostDesc == ""){
+                    if (extraCostDesc == "") {
                         swal("Enter Extra Cost Description", '', 'info');
-                        return;   
+                        return;
                     }
-                }
-                else{
+                }else {
                     extraCost = 0;
                     extraCostDesc = "";
                 }
-        
+
                 if ($("#complete").prop('checked') == true || $("#pending").prop("checked") == true) {
-                    if($("#pending").prop('checked') == true){
-                        if($("#Amt").val() == ""){
+                    if($("#complete").prop('checked') == true){
+                        paymentAdvance = $("#subtotal").val();
+                    }else{
+                        if ($("#Amt").val() == "") {
                             swal("Please Enter Payment Amount", '', 'info');
                             return;
                         }
                         paymentAdvance = $("#Amt").val();
-                    }   
-                    else{
-                        paymentAdvance = parseFloat($("#subtotal").val());
-
                     }
-                }
-                else {
+                }else {
                     swal("Payment Details Empty ", 'Select Complete Payment Or Partial Payment', 'info');
                     return;
                 }
 
-                if(totalamt == ""){
+                if (totalamt == "") {
                     swal('Total Amount Empty', '', 'info');
                     return;
-                }
-                else{
+                }else {
                     totalamt = parseFloat(totalamt);
-                    if(totalamt <= 0){
-                        swal("Total Amount Can't Be Nagetive").then(()=>{
+                    if (totalamt <= 0) {
+                        swal("Total Amount Can't Be Nagetive").then(() => {
                             return;
                         });
                     }
                 }
 
-                if(discount == ""){
-                    swal('Discoutn Empty', '', 'info');
+                if (discount == "") {
+                    swal('Discount Empty', '', 'info');
                     return;
-                }
-                else{
+                }else {
                     discount = parseFloat(discount);
-                    if(discount < 0){
-                        swal("Discount Can't Be Nagetive", '', 'info').then(()=>{
+                    if (discount < 0) {
+                        swal("Discount Can't Be Nagetive", '', 'info').then(() => {
                             return;
                         });
-                    }
-                    else if(discount > totalamt){
-                        swal("Discount Can't Be Greater Then Total Amount").then(()=>{
+                    }else if (discount > totalamt) {
+                        swal("Discount Can't Be Greater Then Total Amount").then(() => {
                             return;
                         });
                     }
                 }
 
-                if(transport == ""){
+                if (transport == "") {
                     swal('Transportation Cost Empty', '', 'info');
                     return;
-                }
-                else{
+                }else {
                     transport = parseFloat(transport);
-                    if(transport < 0){
-                        swal("Transporatation Cost Can't Be Nagetive", '', 'info').then(()=>{
+                    if (transport < 0) {
+                        swal("Transporatation Cost Can't Be Nagetive", '', 'info').then(() => {
                             return;
                         });
                     }
                 }
 
-
                 console.log("Payment At Time : " + paymentAdvance);
-
-                //console.log(customerId);
-
-                var tbl = $("#purchasedTable");
-                var tbljson = tbl.tableToJSON();
-                //console.log(tbljson);
-                // console.log(customerId);
-                // console.log(challandate);
-                // console.log(discount);
-                // console.log(transport);
-                // console.log("KKKKKKKK");
-
+                
                 if (customerId != '-1' && challandate != '') {
                     var itr = stockIdsToBePurchased[Symbol.iterator]();
                     var n = stockIdsToBePurchased.size;
                     var challanpack = Array();
-                    var custidobj = { challandate: challandate, customerId: customerId, totalamt: totalamt, discount: discount, transport: transport, extracost: extraCost, extracostdesc: extraCostDesc, advancepayment: paymentAdvance};
+                    var custidobj = { challandate: challandate, customerId: customerId, totalamt: totalamt, discount: discount, transport: transport, extracost: extraCost, extracostdesc: extraCostDesc, advancepayment: paymentAdvance };
                     challanpack.push(custidobj);
 
                     for (let i = 0; i < n; i++) {
                         var tempstockid = itr.next().value;
-                        var billingQty = $("#billingqty_" + tempstockid).val();
-                        var otherQty = $("#otherqty_" + tempstockid).val();
-                        var sellingPrice = $("#sellingprice_" + tempstockid).val();
+                        var billingQty = parseInt($("#billingqty_" + tempstockid).val());
+                        var otherQty = parseInt($("#otherqty_" + tempstockid).val());
+                        var sellingPrice = parseFloat($("#sellingprice_" + tempstockid).val());
 
-
+                        if(billingQty == 0 && otherQty == 0){
+                            swal('Billing Quantity and Other Quantity both shuld not be 0 for same product','','error');
+                            return;
+                        }
+                            
                         var challanitemobj = {
                             stockid: tempstockid,
                             billqty: billingQty,
@@ -1073,8 +1051,6 @@
                         challanpack.push(challanitemobj);
                     }
 
-                    //console.log(challanpack);
-                    //console.log(JSON.stringify(challanpack));
                     $.ajax({
                         type: "POST",
                         url: "./AddNewChallanAjax/addNewChallanInDatabase.php",
@@ -1086,7 +1062,6 @@
                                 var challanid = Data[1].CHALLANID;
                                 $("#challanid").val(challanid);
                                 console.log('CHALLAN ID IN FORM : ' + $('#challanid').val());
-                                // alert("Challan Id : " + challanid);
                                 swal('Challan Generated Successfully.', '', 'success').then(function () {
                                     $("#makepdf").submit();
                                     location.reload(true);
@@ -1108,16 +1083,20 @@
                                 swal('Something Went Wrong', '', 'error');
 
                             }
-                            else if(Data[0].FLAG == "ERRINM") {
+                            else if (Data[0].FLAG == "ERRINM") {
                                 console.log("Error In Inserting Month");
                                 swal('Something Went Wrong', '', 'error');
                             }
-                            else if(Data[0].FLAG == "ERRINGLMID"){
+                            else if (Data[0].FLAG == "ERRINGLMID") {
                                 console.log("Error In Getting Last Month Id");
                                 swal('Something Went Wrong', '', 'error');
                             }
-                            else if(Data[0].FLAG == "ERRINULMID"){
+                            else if (Data[0].FLAG == "ERRINULMID") {
                                 console.log("Error In Updating Last Challan No Of Month");
+                                swal('Something Went Wrong', '', 'error');
+                            }
+                            else if (Data[0].FLAG == "ERRINULMID") {
+                                console.log("Error In Insertiong Payment Details in tblinwardpayment");
                                 swal('Something Went Wrong', '', 'error');
                             }
                             else {
@@ -1133,7 +1112,7 @@
                 } else {
                     console.log("CustomerId is Null");
                     swal('Please Fill All The Details', '', 'error');
-                }*/
+                }
             } else {
                 swal("No Items Selected", '', 'error');
             }
@@ -1413,10 +1392,10 @@
         for (let i = 0; i < n; i++) {
 
             var tempstockid = itr.next().value;
-            var billingQty = $("#billingqty_" + tempstockid).val();
-            var otherQty = $("#otherqty_" + tempstockid).val();
-            var sellingPrice = $("#sellingprice_" + tempstockid).val();
-            totalprice = (totalprice + (billingQty * sellingPrice) + (otherQty * sellingPrice));
+            var billingQty = parseInt($("#billingqty_" + tempstockid).val());
+            var otherQty = parseInt($("#otherqty_" + tempstockid).val());
+            var sellingPrice = parseFloat($("#sellingprice_" + tempstockid).val());
+            totalprice = parseFloat((totalprice + (billingQty * sellingPrice) + (otherQty * sellingPrice)));
         }
         document.getElementById("totalcost").value = totalprice;
 
@@ -1426,22 +1405,22 @@
         console.log("HELLLLO");
         var total = document.getElementById("totalcost").value;
         var discount = document.getElementById("discount").value;
-        if(discount == ""){
+        if (discount == "") {
             discount = 0;
             return;
         }
         total = parseFloat(total);
         discount = parseFloat(discount);
-        if(discount>total){
-            swal("Discount Can't Be Greater Then Total").then(()=>{
+        if (discount > total) {
+            swal("Discount Can't Be Greater Then Total").then(() => {
                 document.getElementById("discount").value = 0;
                 $("#discount").focus();
                 $("#Amt").val("");
                 return;
             });
         }
-        if(discount < 0){
-            swal("Discount Can't Be Nagetive").then(()=>{
+        if (discount < 0) {
+            swal("Discount Can't Be Nagetive").then(() => {
                 document.getElementById("discount").value = 0;
                 $("#discount").focus();
                 $("#Amt").val("");
@@ -1450,8 +1429,8 @@
         }
         var transport = document.getElementById("transportcost").value;
         transport = parseFloat(transport);
-        if(transport < 0){
-            swal("Transportation Cost Can't Be Nagetive").then(()=>{
+        if (transport < 0) {
+            swal("Transportation Cost Can't Be Nagetive").then(() => {
                 document.getElementById("transportcost").value = 0;
                 $("#transportcost").focus();
                 return;
@@ -1459,9 +1438,9 @@
         }
 
         var extraCost = 0;
-        if(addAnotherChargesFlag == true ){
+        if (addAnotherChargesFlag == true) {
             extraCost = $('#extraCost').val();
-            if(extraCost == ""){
+            if (extraCost == "") {
                 extraCost = 0;
             }
         }
@@ -1475,9 +1454,9 @@
         return (DateArray[2] + "-" + DateArray[1] + "-" + DateArray[0]);
     }
 
-    function validateCost(){
-        if(parseFloat($("#extraCost").val()) <= 0){
-            swal("Extra Cost Can't Be Nagetive Or Zero", '', 'info').then(()=>{
+    function validateCost() {
+        if (parseFloat($("#extraCost").val()) <= 0) {
+            swal("Extra Cost Can't Be Nagetive Or Zero", '', 'info').then(() => {
                 $("#extraCost").val("0");
                 return;
             });

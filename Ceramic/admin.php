@@ -165,8 +165,8 @@
                            <li class="has_sub">
                                 <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-account-box"></i> <span>Breakage & Damage </span> <span class="menu-arrow"></span></a>
                                 <ul class="list-unstyled">
-                                    <li><a href="temp.html">New Bracakage & Damage</a></li>
-                                    <li><a href="temp.html">Search Bracakage & Damage</a></li>            
+                                    <li><a href="./Breakage&Damage/Breakage&Damage.php">New Bracakage & Damage</a></li>
+                                    <li><a href="./Breakage&Damage/SearchAndManagebreakage&damage.php">Search Bracakage & Damage</a></li>            
                                 </ul>
                             </li>
 

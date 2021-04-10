@@ -51,14 +51,20 @@
         die("-2"); // -2v => Error In Challan Mst Update Query
     }
 
-    /*$updateInPayment = "";
+    if($dueamount == 0){
+        $pendingstatus = "Complete";
+    }
+    else{
+        $pendingstatus = "Pending";
+    }
+    $updateInPayment = "UPDATE tblinwardpayment SET AmountPaid = {$payedamount}, AmountPending = {$dueamount}, Status = '{$pendingstatus}', ModifiedDate=now() WHERE ChallanId = {$challanid}";
     $result_updateInPayment = mysqli_query($conn, $updateInPayment);
 
     if(!$result_updateInPayment){
         mysqli_rollback($conn);
         mysqli_autocommit($conn, true);
         die("-3"); // -3 => Error In Update Payment Update Query
-    }*/
+    }
 
     if(mysqli_commit($conn)){
         mysqli_autocommit($conn, true);
