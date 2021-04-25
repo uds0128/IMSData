@@ -1095,8 +1095,12 @@
                                 console.log("Error In Updating Last Challan No Of Month");
                                 swal('Something Went Wrong', '', 'error');
                             }
-                            else if (Data[0].FLAG == "ERRINULMID") {
-                                console.log("Error In Insertiong Payment Details in tblinwardpayment");
+                            else if (Data[0].FLAG == "ERRINPAY0") {
+                                console.log("Error In Insertiong Payment Details in tblinwardpayment => 0");
+                                swal('Something Went Wrong', '', 'error');
+                            }
+                            else if (Data[0].FLAG == "ERRINPAY1") {
+                                console.log("Error In Insertiong Payment Details in tblinwardpayment => 1");
                                 swal('Something Went Wrong', '', 'error');
                             }
                             else {

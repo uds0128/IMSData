@@ -16,7 +16,7 @@
         // $link= "<script>window.open('Breakage&Damage.php')</script>";
      // }
 
-    $result_insertIntoBreakageAndDamage = mysqli_query($conn, "UPDATE breakageanddamage SET BillingQty = BillingQty + ({$updatebillingqty}), OtherQty = OtherQty + ({$updateotherqty}), ModifiedDate = now() WHERE SysId = {$sysid}");
+    $result_insertIntoBreakageAndDamage = mysqli_query($conn, "UPDATE breakageanddamage SET BillingQty = BillingQty + ({$updatebillingqty}), OtherQty = OtherQty + ({$updateotherqty}), ModifiedDate = CURDATE() WHERE SysId = {$sysid}");
     //echo $result_insertIntoBreakageAndDamage;
     if(!$result_updateStockDetails || !$result_insertIntoBreakageAndDamage){
         mysqli_rollback($conn);

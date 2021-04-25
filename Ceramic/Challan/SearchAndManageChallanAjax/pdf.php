@@ -293,7 +293,7 @@
             $pdf->Cell(25, 6, 'Amount', 1, 0, 'L');
             $pdf->Cell(30, 6, number_format((float) $amount, 2, '.', ''), 1, 1, 'R');
 
-            $pdf->Output();
+            $pdf->Output($challan_no.'.pdf', 'D');
         }
         else
         {

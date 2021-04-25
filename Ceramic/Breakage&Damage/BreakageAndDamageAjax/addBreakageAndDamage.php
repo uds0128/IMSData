@@ -15,15 +15,20 @@
         // $link= "<script>window.open('Breakage&Damage.php')</script>";
      // }
 
-    $result_insertIntoBreakageAndDamage = mysqli_query($conn, "INSERT INTO breakageanddamage (StockId, BillingQty, OtherQty) VALUES ({$stockid}, {$billingqty}, {$otherqty})");
+    
+    $insertIntoBreakageAndDamage = "INSERT INTO breakageanddamage (StockId, BillingQty, OtherQty, CreatedDate) VALUES ({$stockid}, {$billingqty}, {$otherqty}, CURDATE())";
+    // $result_insertIntoBreakageAndDamage = mysqli_query($conn, "INSERT INTO breakageanddamage (StockId, BillingQty, OtherQty) VALUES ({$stockid}, {$billingqty}, {$otherqty})");
+    $result_insertIntoBreakageAndDamage = mysqli_query($conn, $insertIntoBreakageAndDamage);
     //echo $result_insertIntoBreakageAndDamage;
     if(!$result_updateStockDetails || !$result_insertIntoBreakageAndDamage){
+        //echo $insertIntoBreakageAndDamage;
         mysqli_rollback($conn);
         mysqli_autocommit($conn, true);
         die("-1"); // -1 => Error  In Query
     }
     else{
         mysqli_autocommit($conn, true);
+        //echo $insertIntoBreakageAndDamage;
         echo '1';
     }
 

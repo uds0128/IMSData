@@ -50,40 +50,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <link rel="stylesheet" href="chosen/chosen.css">
-    <script src="chosen/chosen.jquery.js" type="text/javascript"></script>
-    <script>
-
-
-
-        function checkRadio(radio) {
-            if (radio.id === "complete") {
-                document.getElementById("rpy").value = "0";
-                document.getElementById("rpy").readOnly = true;
-                document.getElementById("RemAmt").style.display = "none";
-            } else if (radio.id === "pending") {
-                document.getElementById("RemAmt").style.display = "block";
-            }
-        }
-
-        function calrem() {
-            var tot = parseInt(document.getElementById('tp').value);
-            var pen = parseInt(document.getElementById('Amt').value);
-            var remain = tot - pen;
-            document.getElementById('rpy').value = remain;
-        }
-
-        function cancelField() {
-            document.getElementById("ExtraCost").innerHTML = "";
-            document.getElementById("addOtherCharge").disabled = false;
-        }
-
-        function SomeDeleteRowFunction(o) {
-            var p = o.parentNode.parentNode;
-            p.parentNode.removeChild(p);
-        }
-
-    </script>
+    <!-- <link rel="stylesheet" href="chosen/chosen.css"> -->
+    <!-- <script src="chosen/chosen.jquery.js" type="text/javascript"></script> -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 
@@ -150,7 +118,7 @@
                                         }
                                         else
                                         {
-                                            echo "<script>alert('Something Went Wrong');</script>";
+                                            echo "<script>swal('Something Went Wrong', '', 'error');</script>";
                                             location.reload(true);
                                         }
                                      ?>
@@ -241,8 +209,9 @@
                             <div class="col-md-2">
                                 <select class='form-select resetsearchparam' name="" id="getpackingunit">
                                     <option value="-1">Select</option>
-                                    <option value="kg">KG</option>
-                                    <option value="Piece">Piece</option>
+                                    <option value="kG">KG</option>
+                                    <option value="PIECE">PIECE</option>
+                                    <option value="BOX">BOX</option>
                                 </select>
                             </div>
                             <div class="col-md-2" style="width:18%;">
@@ -354,85 +323,6 @@
         ReloadProductTypeColorMenu();
         ReloadCodeSelectMenu();
 
-        var cid;
-        $("#getCustomerName").prop('disabled', true).chosen();
-        $("#getCustomerName").prop('disabled', true).trigger("chosen:updated");
-
-        $('#addOtherCharge').click(function () {
-            $('#ExtraCost').append(
-                '<form class="row g-3">' +
-                '<div class="form-group col-md-1" style="margin-left: 30px; margin-top: 30px;" id="AddChargesRs.">' +
-                '<input type="text" name="extraCost" class="form-control col-md-2" id="extraCost" placeholder="Extra Cost">' +
-                '</div>' +
-                '<div class="form-group col-md-4" style="margin-top: 30px;" id="AddChargesDes">' +
-                '<input type="text" name="extraCostDes" class="form-control" id="extraCostDes" placeholder="Description of Extra Cost">' +
-                '</div>' +
-                '<div class="form-group col-md-1" style="margin-top: 35px;" id="CancelField" >' +
-                '<button type="button" class="btn-close" id="closeButton" onclick="cancelField()"></button>' +
-                '</div>' +
-                '<div></div>' +
-                '</form>'
-            );
-            $('#addOtherCharge').attr("disabled", true);
-        });
-
-        $('input[type=radio][name=customer]').change(function () {
-            if (this.id == 'ec') {
-
-                $.ajax({
-                    type: 'POST',
-                    url: "./AddNewChallanAjax/getCustomerName.php",
-                    dataType: "json",
-                    success: function (Data) {
-                        console.log(Data);
-                        if (Data[0].FLAG == "SUCCESS") {
-                            let n = Data.length;
-                            for (let i = 1; i < n; i++) {
-                                $("#getCustomerName").append(new Option(Data[i].customerName + " " + Data[i].customerNo, Data[i].customerId));
-                            }
-                            $('#getCustomerName').prop('disabled', false).chosen();
-                            $('#getCustomerName').prop('disabled', false).trigger("chosen:updated");
-                        }
-                        else if (Data[0].FLAG == "NORECORDFOUND") {
-                            console.log("NO RECORD FOUND");
-                            alert('No Record Found');
-                        }
-                        else if (Data[0].FLAG == "ERRORINQUERYEXECUTION") {
-                            console.log("ERROR IN QUERY EXECUTION");
-                            alert('oh no');
-                        }
-                        else {
-                            console.log("ERROR");
-                            alert('what');
-                        }
-                    },
-                    error: function (Data) {
-
-                    }
-                });
-            }
-            else if (this.id == 'nc') {
-                $("#getCustomerName").prop('disabled', true).chosen();
-                $("#getCustomerName").prop('disabled', true).trigger("chosen:updated");
-                window.location.href = '../Customer/NewCustomer.php';
-            }
-        });
-
-        // $("#closechallan").click(function () {
-        //     //window.location.href = '../Ceramic/admin.php';
-        // });
-
-        function validateChallanMetaData() {
-            var challanDate = $("#getChallanDate").val();
-            var customerId = $("#getCustomerName").val();
-            if (challanDate != '' && customerId != "-1") {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
         $("#category_name").on('change', function () {
 
             ResetSelectMenu($("#subcategories"));
@@ -448,7 +338,7 @@
                 console.log('Hello');
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getSubcategoriesFromCategories.php",
+                    url: "./BreakageAndDamageAjax/getSubcategoriesFromCategories.php",
                     data: { cid: cid },
                     dataType: "json",
                     success: function (Data) {
@@ -463,23 +353,23 @@
                         }
                         else if (Data[0].FLAG == "NORECORDFOUND") {
                             console.log("No Subcategory Found For Given Category");
-                            alert('No Subcategory Found For Given Category');
+                            swal('No Subcategory Found For Given Category', '', 'info');
                         }
                         else if (Data[0].FLAG == "NOTOK") {
                             console.log("Error In Executing Query");
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else {
                             console.log('Other Response Found');
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log("Error In Ajax Call In Categories Change Event");
-                        alert('Something Went Wrong');
-                        console.log(Data.status);
-                        console.log(Data.statusText);
-                        console.log(Data.responseText);
+                        swal('Something Went Wrong', '', 'error');
+                        //console.log(Data.status);
+                        //console.log(Data.statusText);
+                        //console.log(Data.responseText);
                     }
                 });
             }
@@ -499,7 +389,7 @@
             if (subcatid != "-1") {
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getBrandsFromSubcategory.php",
+                    url: "./BreakageAndDamageAjax/getBrandsFromSubcategory.php",
                     data: { subcatid: subcatid },
                     dataType: 'json',
                     success: function (Data) {
@@ -514,26 +404,26 @@
                         }
                         else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Brands Found For Selected Category And Subcategory");
-                            alert("No Brands Found For Selected Category And Subcategory");
+                            swal("No Brands Found For Selected Category And Subcategory", '', 'info');
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 });
 
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getHSNGSTFromSubcategory.php",
+                    url: "./BreakageAndDamageAjax/getHSNGSTFromSubcategory.php",
                     data: { subcatid: subcatid },
                     dataType: 'json',
                     success: function (Data) {
@@ -543,24 +433,24 @@
                             $("#gst").val(Data[1].gstnum);
                         } else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Brands Found For Selected Category And Subcategory");
-                            alert("No Brands Found For Selected Category And Subcategory");
+                            swal("No Brands Found For Selected Category And Subcategory", '','info');
                         } else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         } else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 });
 
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getGradesFromSubcategory.php",
+                    url: "./BreakageAndDamageAjax/getGradesFromSubcategory.php",
                     data: { subcatid: subcatid },
                     dataType: 'json',
                     success: function (Data) {
@@ -575,20 +465,20 @@
                         }
                         else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Grade Found For Selected Category And Subcategory");
-                            alert("No Grade Found For Selected Category And Subcategory");
+                            swal("No Grade Found For Selected Category And Subcategory", '','info');
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 });
             }
@@ -655,7 +545,7 @@
                                             var billingqty = Data[i].billingqty;
                                             var otherqty = Data[i].otherqty;
                                             var baseprice = Data[i].baseprice;
-                                            var dateadded = Data[i].dateadded;
+                                            var dateadded = splitDate(Data[i].dateadded);
                                             var stockid = Data[i].stockid;
                                             stockids = stockid;
 
@@ -692,36 +582,37 @@
                                             );
                                         }
                                     } else if (Data[0].FLAG == "NORECORDFOUND") {
-                                        alert('NO Record Found For Your Search Result');
+                                        swal('NO Record Found For Your Search Result', '', 'info');
                                     } else if (Data[0].FLAG == "ERRORINQUERY") {
-                                        alert('Error In Query');
+                                        console.log("Error In Query");
+                                        swal('Something Went Wrong', '', 'error');
                                     }
                                 },
                                 error: function (Data) {
                                     console.log('Error In Ajax Call ' + Data);
-                                    alert('Something Went Wrong');
+                                    swal('Something Went Wrong', '', 'error');
                                 }
                             });
                         } else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Such Product Found");
-                            alert("No Such Product Found");
+                            swal("No Such Product Found", '','info');
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal('Something Went Wrong', '', 'error');
                         }
                         else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal('Something Went Wrong', '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 });
             } else {
-                alert('All Fields are Required.');
+                swal('All Fields are Required.', '', 'info');
             }
         });
 
@@ -759,39 +650,27 @@
                     '<td>' + obj[14] + '</td>' +//date
                     '<td>' + obj[11] + '</td>' +
                     '<td>' + obj[12] + '</td>' +
-                    //'<td width="7%" ><input class="form-control purchase-qty calprice"  onkeyup="validateQty(this,' + obj[14] + ');  " type="number" step="1" id="date_' + $(this).attr("stockid") + '" >' +
-                    '<td width="7%" ><input class="form-control purchase-qty calprice"  onkeyup="validateQty(this,' + obj[11] + ');  " type="number" step="1" id="billingqty_' + $(this).attr("stockid") + '" >' +
-                    '<td width="7%" ><input class="form-control purchase-qty calprice"  onkeyup="validateQty(this,' + obj[12] + ');  " type="number" step="1" id="otherqty_' + $(this).attr("stockid") + '" >' +
+                    //'<td width="7%" ><input class="form-control"  onkeyup="validateQty(this,' + obj[14] + ');  " type="number" step="1" id="date_' + $(this).attr("stockid") + '" >' +
+                    '<td width="7%" ><input class="form-control"  onkeyup="validateQty(this,' + obj[11] + ');  " type="number" step="1" id="billingqty_' + $(this).attr("stockid") + '" >' +
+                    '<td width="7%" ><input class="form-control"  onkeyup="validateQty(this,' + obj[12] + ');  " type="number" step="1" id="otherqty_' + $(this).attr("stockid") + '" >' +
                     '<td></td>' +
 
                     //'<td><button value="Remove" class="btn btn-danger removebtn" id="'+ $(this).attr("stockid") +'" onclick="calprice()" >Save</button></td>' +
-                    '<td><button value="Remove" class="btn btn-danger" onclick="calprice(this, ' + ids + ')" >Save</button></td>' +
+                    '<td><button value="save" class="btn btn-danger" onclick="calprice(this, ' + ids + ')" >Save</button></td>' +
                     '</tr>';
 
                 $("#purchasedTable tbody:last-child").append(trToBeAppend);
             }
             else {
-                alert('Item Alredy Present Inside Purchased Items List');
+                swal('Item Alredy Present Inside Purchased Items List', '','info');
             }
         });
-
-        // $("#purchasedTable").on('click', '.savebtn', function () {
-        //     var stockid = $(this).attr('stockid');
-
-        //     if (stockIdsToBePurchased.delete(stockid)) {
-        //         var p = $(this).parent().parent().remove();
-        //         calprice();
-        //     }
-        //     else {
-        //         console.log('Error in remove')
-        //     }
-        // });
 
         function ReloadGradeSelectMenu() {
             ResetSelectMenu($("#getgrade"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getGrades.php",
+                url: "./BreakageAndDamageAjax/getGrades.php",
                 dataType: 'json',
                 success: function (Data) {
                     if (Data[0].FLAG == 'OKK') {
@@ -803,16 +682,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -821,7 +700,7 @@
             ResetSelectMenu($("#getbrandname"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getBrandNames.php",
+                url: "./BreakageAndDamageAjax/getBrandNames.php",
                 dataType: 'json',
                 success: function (Data) {
                     if (Data[0].FLAG == 'OKK') {
@@ -833,16 +712,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -851,7 +730,7 @@
             ResetSelectMenu($("#subcategories"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getAllSubCategories.php",
+                url: "./BreakageAndDamageAjax/getAllSubCategories.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -865,15 +744,15 @@
                     }
                     else if (Data[0].FLAG == "NORECORDFOUND") {
                         console.log("No Subcategory Found For Given Category");
-                        alert('No Subcategory Found For Given Category');
+                        swal('No Subcategory Found For Given Category', '', 'info');
                     }
                     else if (Data[0].FLAG == "NOTOK") {
                         console.log("Error In Executing Query");
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log('Other Response Found');
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
@@ -889,7 +768,7 @@
             ResetSelectMenu($("#getdimension"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getAllDimesnsions.php",
+                url: "./BreakageAndDamageAjax/getAllDimesnsions.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -902,20 +781,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '','info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Erroe In ./SearchAndManageProductAjax/getAllDimesnsions.php   AJax Call");
-                    alert("Soething Went Wrong");
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -925,7 +804,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getQtyPerUnit.php",
+                url: "./BreakageAndDamageAjax/getQtyPerUnit.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -938,20 +817,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '', 'info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Erroe In ./SearchAndManageProductAjax/getAllDimesnsions.php   AJax Call");
-                    alert("Soething Went Wrong");
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -961,7 +840,7 @@
             ResetSelectMenu($("#getProductTypeColor"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getProductTypeColor.php",
+                url: "./BreakageAndDamageAjax/getProductTypeColor.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -973,20 +852,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '', 'info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Erroe In  ./SearchAndManageProductAjax/getProductTypeColor.php AJax Call");
-                    alert("Soething Went Wrong");
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -996,7 +875,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getCode.php",
+                url: "./BreakageAndDamageAjax/getCode.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -1009,20 +888,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '', 'info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal('Something Went Wrong', '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal('Something Went Wrong', '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Error In  ./SearchAndManageProductAjax/getCode.php AJax Call");
-                    alert("Something Went Wrong");
+                    swal('Something Went Wrong', '', 'error');
                 }
             });
         }
@@ -1040,20 +919,19 @@
         dotqty = qty - Math.trunc(qty)
         if (dotqty <= 0) {
             if (qty > maxqty) {
-                alert('Max Stock Qty = ' + maxqty);
+                swal('Max Stock Qty = ' + maxqty, '', 'warning');
                 obj.value = "";
             }
             else if (qty < 0) {
-                alert('Quantity Cant Be Minus');
+                swal('Quantity Cant Be Minus', '', 'warning');
                 obj.value = "";
             }
         }
         else {
-            alert("Qty Cant Be Float");
+            swal("Qty Cant Be Float", '', 'warning');
             obj.value = "";
         }
     }
-
 
     function calprice(ref, stockid) {
         var billingQty = $("#billingqty_" + stockid).val();
@@ -1109,24 +987,13 @@
                 return;
             });
             return;
-        }
-        // var totalprice = 0,stocksid=0;
-        // console.log(y);
-        // totalprice=billingQty;
-
-        // var val1 = totalprice;
-        // var val2 = otherQty;
-        // var val3 = y;
-        // console.log(val2);
-
-        //     $.ajax({
-        //         type: 'POST',
-        //         url: './AddNewChallanAjax/updatestockdetails.php',
-        //         data: { val1: val1, val2: val2, val3:val3 },
-        //         success: function() {
-        //             alert('Data added successfully');
-        //         }
-        //     });    
+        }  
     }
 
+    function splitDate(date) {
+        var DateArray = date.split(" ");
+        DateArray = DateArray[0];
+        DateArray = DateArray.split("-");
+        return (DateArray[2]+"-"+DateArray[1]+"-"+DateArray[0]);
+    }
 </script>

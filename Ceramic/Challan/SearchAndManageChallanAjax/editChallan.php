@@ -550,6 +550,7 @@
                     }*/
                 }
             
+
                 var itr = stockIdsToBePurchased[Symbol.iterator]();
                 var n = stockIdsToBePurchased.size;
                 var challanpack = new Array();
@@ -597,7 +598,7 @@
                     challanpack.push(obj);
 
                 }
-
+                console.log(challanpack);
                 $.ajax({
                     type: "POST",
                     url: './EditChallanAjax/editChallanSaveChanges.php',

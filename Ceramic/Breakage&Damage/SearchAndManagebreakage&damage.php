@@ -4,7 +4,6 @@
 
 <head>
     <title>Search And Manage Breakage And Damage</title>
-    <!-- <script data-main="scripts/app" src="scripts/require.js"></script> -->
     <style type="text/css">
         .grid1 {
             display: grid;
@@ -53,41 +52,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <link rel="stylesheet" href="chosen/chosen.css">
-    <script src="chosen/chosen.jquery.js" type="text/javascript"></script>
+    <!-- <link rel="stylesheet" href="chosen/chosen.css"> -->
+    <!-- <script src="chosen/chosen.jquery.js" type="text/javascript"></script> -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script>
-
-	
-
-        function checkRadio(radio) {
-            if (radio.id === "complete") {
-                document.getElementById("rpy").value = "0";
-                document.getElementById("rpy").readOnly = true;
-                document.getElementById("RemAmt").style.display = "none";
-            } else if (radio.id === "pending") {
-                document.getElementById("RemAmt").style.display = "block";
-            }
-        }
-
-        function calrem() {
-            var tot = parseInt(document.getElementById('tp').value);
-            var pen = parseInt(document.getElementById('Amt').value);
-            var remain = tot - pen;
-            document.getElementById('rpy').value = remain;
-        }
-
-        function cancelField() {
-            document.getElementById("ExtraCost").innerHTML = "";
-            document.getElementById("addOtherCharge").disabled = false;
-        }
-
-        function SomeDeleteRowFunction(o) {
-            var p = o.parentNode.parentNode;
-            p.parentNode.removeChild(p);
-        }
-
-    </script>
 </head>
 
 <!-- <?php 
@@ -171,7 +138,7 @@
                                         }
                                         else
                                         {
-                                            echo "<script>alert('Something Went Wrong');</script>";
+                                            echo "<script>swal('Something Went Wrong', '', 'error');</script>";
                                             location.reload(true);
                                         }
                                      ?>
@@ -262,8 +229,9 @@
                             <div class="col-md-2">
                                 <select class='form-select resetsearchparam' name="" id="getpackingunit">
                                     <option value="-1">Select</option>
-                                    <option value="kg">KG</option>
-                                    <option value="Piece">Piece</option>
+                                    <option value="KG">KG</option>
+                                    <option value="PIECE">PIECE</option>
+                                    <option value="BOX">BOX</option>
                                 </select>
                             </div>
                             <div class="col-md-2" style="width:18%;">
@@ -301,11 +269,12 @@
                             <th>Packing<br>Unit</th>
                             <th>Grade</th>
                             <th>Code</th>
+                            <th>Batch<br>No</th>
                             <!-- <th>GST</th> -->
                             <th hidden>Billing<br>Qty</th>
                             <th hidden>Other<br>Qty</th>
                             <th>Base<br>Price</th>
-                            <th style="width: 150px;">Stock<br>Added<br>Date</th>
+                            <th style="width: 150px;">Inward<br>Date</th>
                             <th>Damaged<br>Billing<br>Quentity</th>
                             <th>Damaged<br>Other<br>Quentity</th>
                             <th style="width: 150px;">Damaged<br>Addition<br>Date</th>
@@ -347,6 +316,7 @@
                             <th>Packing<br>Unit</th>
                             <th>Grade</th>
                             <th>Code</th>
+                            <th>Batch<br>No</th>
                             <th hidden>Billing<br>Qty</th>
                             <th hidden>Other<br>Qty</th>
                             <th>Base<br>Price</th>
@@ -373,9 +343,8 @@
 <script type="text/javascript">
     var stockIdsToBePurchased;
     var lockflag = false;
+    var mode = -1;
     $(function () {
-
-        
         ReloadSubcategoriesSelectMenu();
         ReloadGradeSelectMenu();
         ReloadBrandSelectMenu();
@@ -384,74 +353,97 @@
         ReloadProductTypeColorMenu();
         ReloadCodeSelectMenu();
         sysIdsToBeUpdated = new Set();
-        var cid;
-
-        $("#getCustomerName").prop('disabled', true).chosen();
-        $("#getCustomerName").prop('disabled', true).trigger("chosen:updated");
-
-        $('#addOtherCharge').click(function () {
-            $('#ExtraCost').append(
-                '<form class="row g-3">' +
-                '<div class="form-group col-md-1" style="margin-left: 30px; margin-top: 30px;" id="AddChargesRs.">' +
-                '<input type="text" name="extraCost" class="form-control col-md-2" id="extraCost" placeholder="Extra Cost">' +
-                '</div>' +
-                '<div class="form-group col-md-4" style="margin-top: 30px;" id="AddChargesDes">' +
-                '<input type="text" name="extraCostDes" class="form-control" id="extraCostDes" placeholder="Description of Extra Cost">' +
-                '</div>' +
-                '<div class="form-group col-md-1" style="margin-top: 35px;" id="CancelField" >' +
-                '<button type="button" class="btn-close" id="closeButton" onclick="cancelField()"></button>' +
-                '</div>' +
-                '<div></div>' +
-                '</form>'
-            );
-            $('#addOtherCharge').attr("disabled", true);
-        });
-
-        $('input[type=radio][name=customer]').change(function () {
-            if (this.id == 'ec') {
-
-                $.ajax({
-                    type: 'POST',
-                    url: "./AddNewChallanAjax/getCustomerName.php",
-                    dataType: "json",
-                    success: function (Data) {
-                        console.log(Data);
-                        if (Data[0].FLAG == "SUCCESS") {
-                            let n = Data.length;
-                            for (let i = 1; i < n; i++) {
-                                $("#getCustomerName").append(new Option(Data[i].customerName + " " + Data[i].customerNo, Data[i].customerId));
-                            }
-                            $('#getCustomerName').prop('disabled', false).chosen();
-                            $('#getCustomerName').prop('disabled', false).trigger("chosen:updated");
-                        }
-                        else if (Data[0].FLAG == "NORECORDFOUND") {
-                            console.log("NO RECORD FOUND");
-                            alert('No Record Found');
-                        }
-                        else if (Data[0].FLAG == "ERRORINQUERYEXECUTION") {
-                            console.log("ERROR IN QUERY EXECUTION");
-                            alert('oh no');
-                        }
-                        else {
-                            console.log("ERROR");
-                            alert('what');
-                        }
-                    },
-                    error: function (Data) {
-
-                    }
-                });
-            }
-            else if (this.id == 'nc') {
-                $("#getCustomerName").prop('disabled', true).chosen();
-                $("#getCustomerName").prop('disabled', true).trigger("chosen:updated");
-                window.location.href = '../Customer/NewCustomer.php';
-            }
-        });
 
         $("#lockbtn").on('click', function(){
             lockflag = true;
             $(".date-class").prop('disabled', true);
+
+            $("#searchedTable tbody").empty();
+
+            var fromdate = $("#from-date").val();
+            var todate = $("#to-date").val();
+
+            $.ajax({
+                type: "POST",
+                url: "./SearchAndManageBreakageAndDamageAjax/getDamageDetailsFromDate.php",
+                data: {fromdate: fromdate, todate: todate},
+                dataType: 'json',
+                success: function(Data){
+                    console.log(Data);
+                    if(Data[0].FLAG == "OKK"){
+                        var n = Data.length;
+
+                        for(var i=1; i<n; i++){
+                            var category            = Data[i].category;
+                            var subcategory         = Data[i].subcategory;
+                            var typeorcolor         = Data[i].typeorcolor;
+                            var brand               = Data[i].brand;
+                            var dimension           = Data[i].dimension;
+                            var qtyperunit          = Data[i].qtyperunit;
+                            var packingunit         = Data[i].packingunit;
+                            var grade               = Data[i].grade;
+                            var code                = Data[i].code;
+                            var batchno             = Data[i].batchno;
+                            var baseprice           = Data[i].baseprice;
+                            var billingqty          = Data[i].billingqty;
+                            var otherqty            = Data[i].otherqty;
+                            var stockaddeddate      = splitDate(Data[i].dateadded);
+                            var dbillingqty         = Data[i].dbillingqty;
+                            var dotherqty           = Data[i].dotherqty;
+                            var damageadditiondate  = splitDate(Data[i].damageadditiondate);
+                            var stockid             = Data[i].stockid;
+                            var sysid               = Data[i].sysid;
+                            var productid           = Data[i].productid;
+
+                            $("#searchedTable tbody:last-child").append(
+                                '<tr>' +
+                                    '<td>' + category + '</td>' + 
+                                    '<td>' + subcategory + '</td>' + 
+                                    '<td>' + typeorcolor + '</td>' + 
+                                    '<td>' + brand + '</td>' + 
+                                    '<td>' + dimension + '</td>' + 
+                                    '<td>' + qtyperunit + '</td>' + 
+                                    '<td>' + packingunit + '</td>' + 
+                                    '<td>' + grade + '</td>' + 
+                                    '<td>' + code + '</td>' + 
+                                    '<td>' + batchno + '</td>' + 
+                                    '<td hidden>' + billingqty + '</td>' + 
+                                    '<td hidden>' + otherqty + '</td>' + 
+                                    '<td>' + baseprice + '</td>' + 
+                                    '<td style="width: 150px;">' + stockaddeddate + '</td>' + 
+                                    '<td>' + dbillingqty + '</td>' + 
+                                    '<td>' + dotherqty + '</td>' + 
+                                    '<td style="width: 150px;">' + damageadditiondate + '</td>' + 
+                                    '<td><input type="button" class="btn btn-primary selectbtn" pid="' + productid + '" stockid="' + stockid + '" value="Select" sysid = "'+ sysid +'"></center></td>' + 
+                                '</tr>'
+                            );
+                            
+
+                        }
+                    }
+                    else if(Data[0].FLAG == "NORECORD"){
+                        console.log("No Record Found");
+                        swal("No Damage Records Found For Given Range Of Date", '','info').then(()=>{return;});
+                        return;
+                    }
+                    else if(Data[0].FLAG == "ERROR"){
+                        console.log("Error In Query");
+                        swal("Something Went Wrong", '','error').then(()=>{return;});
+                        return;
+                    }
+                    else{
+                        console.log("Other Response Recieved");
+                        swal("Something Went Wrong", '','error').then(()=>{return;});
+                        return;
+                    }
+                },
+                error: function(Data){
+                    console.log("Error In   ./SearchAndManageBreakageAndDamageAjax/getDamageDetailsFromDate.php  Ajax Call");
+                    swal("Somehing Went Wrong", '', 'error').then(()=>{return;});
+                    return;
+                }
+            });
+            mode = 2;
         });
         
         $("#unlockbtn").on('click', function(){
@@ -460,20 +452,6 @@
             $("#searchedTable tbody").empty();
             $("#purchasedTable tbody").empty();
         });
-        // $("#closechallan").click(function () {
-        //     //window.location.href = '../Ceramic/admin.php';
-        // });
-
-        function validateChallanMetaData() {
-            var challanDate = $("#getChallanDate").val();
-            var customerId = $("#getCustomerName").val();
-            if (challanDate != '' && customerId != "-1") {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
 
         $("#category_name").on('change', function () {
 
@@ -490,7 +468,7 @@
                 console.log('Hello');
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getSubcategoriesFromCategories.php",
+                    url: "./SearchAndManageBreakageAndDamageAjax/getSubcategoriesFromCategories.php",
                     data: { cid: cid },
                     dataType: "json",
                     success: function (Data) {
@@ -505,23 +483,23 @@
                         }
                         else if (Data[0].FLAG == "NORECORDFOUND") {
                             console.log("No Subcategory Found For Given Category");
-                            alert('No Subcategory Found For Given Category');
+                            swal('No Subcategory Found For Given Category', '', 'info');
                         }
                         else if (Data[0].FLAG == "NOTOK") {
                             console.log("Error In Executing Query");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else {
                             console.log('Other Response Found');
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log("Error In Ajax Call In Categories Change Event");
-                        alert('Something Went Wrong');
-                        console.log(Data.status);
-                        console.log(Data.statusText);
-                        console.log(Data.responseText);
+                        swal("Something Went Wrong", '', 'error');
+                        //console.log(Data.status);
+                        //console.log(Data.statusText);
+                        //console.log(Data.responseText);
                     }
                 });
             }
@@ -541,7 +519,7 @@
             if (subcatid != "-1") {
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getBrandsFromSubcategory.php",
+                    url: "./SearchAndManageBreakageAndDamageAjax/getBrandsFromSubcategory.php",
                     data: { subcatid: subcatid },
                     dataType: 'json',
                     success: function (Data) {
@@ -556,26 +534,26 @@
                         }
                         else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Brands Found For Selected Category And Subcategory");
-                            alert("No Brands Found For Selected Category And Subcategory");
+                            swal("No Brands Found For Selected Category And Subcategory", '', 'info');
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                     },
                     error: function (Data) {
-                        console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        console.log('Error In ./SearchAndManageBreakageAndDamageAjax/getBrandsFromSubcategory.php  Ajax Call ' + Data);
+                        swal("Something Went Wrong", '', 'error');
                     }
                 });
 
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getHSNGSTFromSubcategory.php",
+                    url: "./SearchAndManageBreakageAndDamageAjax/getHSNGSTFromSubcategory.php",
                     data: { subcatid: subcatid },
                     dataType: 'json',
                     success: function (Data) {
@@ -585,24 +563,24 @@
                             $("#gst").val(Data[1].gstnum);
                         } else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Brands Found For Selected Category And Subcategory");
-                            alert("No Brands Found For Selected Category And Subcategory");
+                            swal("No Brands Found For Selected Category And Subcategory", '','info');
                         } else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         } else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 });
 
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/getGradesFromSubcategory.php",
+                    url: "./SearchAndManageBreakageAndDamageAjax/getGradesFromSubcategory.php",
                     data: { subcatid: subcatid },
                     dataType: 'json',
                     success: function (Data) {
@@ -617,20 +595,20 @@
                         }
                         else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Grade Found For Selected Category And Subcategory");
-                            alert("No Grade Found For Selected Category And Subcategory");
+                            swal("No Grade Found For Selected Category And Subcategory", '', 'info');
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                     },
                     error: function (Data) {
-                        console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        console.log('Error In  ./SearchAndManageBreakageAndDamageAjax/getGradesFromSubcategory.php Ajax Call ' + Data);
+                        swal("Something Went Wrong", '', 'error');
                     }
                 });
             }
@@ -641,126 +619,12 @@
 
         });
 
-        $("#searchbtn1").click(function () {
-            $("#searchedTable tbody").empty();
-            var InitialDate = $("#InitialDate").val();
-            var FinalDate = $("#FinalDate").val();
-            //if (category != '-1' && subcategory != '-1' && brandname != '-1' && hsncode != ' ' && grade != '-1' && colortype != '-1' && dimension != '-1' && qtyperunit != '-1' && packingunit != '-1' && codeno != '-1' && gstno != ' ') {
-                $.ajax({
-                    type: "POST",
-                    url: "./AddNewChallanAjax/searchProductIdforbnd.php",
-                    data: { InitialDate: InitialDate,FinalDate: FinalDate },
-                    dataType: 'json',
-                    success: function (Data) {
-                        console.log(Data);
-                        let n1=Data.length;
-
-                        for(let i=1;i<n1;i++){
-                        if (Data[0].FLAG == "OKK") {
-                            $("#pid1").val(Data[i].StockId);
-                    
-                            var StockId = $("#pid1").val();
-                            console.log(StockId);
-                            //let n = Data.length;
-                            //console.log(n);
-                            $.ajax({
-                                type: "POST",
-                                url: "./AddNewChallanAjax/searchbydate.php",
-                                data: { StockId: StockId },
-                                dataType: 'json',
-                                success: function (Data) {
-                                    console.log(Data);
-                                    if (Data[0].FLAG == "RECORDFOUND") {
-                                        let n = Data.length;
-                                        console.log(Data);
-                                        console.log(n);
-                                        for (let i = 1; i <n; i++) {
-                                            //var category = $('#category_name option:selected').html();
-                                            //var subcategory = $('#subcategories option:selected').html();
-                                            //var brandname = $('#getbrandname option:selected').html();
-                                            //var grade = $('#getgrade option:selected').html();
-                                            
-                                            var category = Data[i].category;
-                                            var subcategory = Data[i].subcategory;
-                                            var hsncode = Data[i].hsncode;
-                                            var colortype = Data[i].colortype;
-                                            var brandname = Data[i].brandname;
-                                            var dimension = Data[i].dimension;
-                                            var qtyperunit = Data[i].qtyperunit;
-                                            var packingunit = Data[i].packingunit;
-                                            var gradeid = Data[i].gradeid;
-                                            var code = Data[i].code;
-                                            var gst = Data[i].gst;
-                                            var billingqty = Data[i].billingqty;
-                                            var otherqty = Data[i].otherqty;
-                                            var baseprice = Data[i].baseprice;
-                                            var createddate = Data[i].createddate;
-                                            var StockId = Data[i].StockId;
-
-                                            $("#searchedTable tbody:last-child").append(
-                                                '<tr>' +
-                                                '<td>' + category + '</td>' +
-                                                '<td>' + subcategory + '</td>' +
-                                                '<td>' + hsncode + '</td>' +
-                                                '<td>' + colortype + '</td>' +
-                                                '<td>' + brandname + '</td>' +
-                                                '<td>' + dimension + '</td>' +
-                                                '<td>' + qtyperunit + '</td>' +
-                                                '<td>' + packingunit + '</td>' +
-                                                '<td>' + gradeid + '</td>' +
-                                                '<td>' + code + '</td>' +
-                                                '<td>' + gst + '</td>' +
-                                                '<td>' + billingqty + '</td>' +
-                                                '<td>' + otherqty + '</td>' +
-                                                '<td>' + baseprice + '</td>' +
-                                                '<td>' + createddate + '</td>' +
-                                                '<td><input type="button" class="btn btn-primary selectbtn" pid="' + productid + '" StockId="' + StockId + '" value="Select"></center></td>' +
-                                                '</tr>'
-                                            );
-                                        }
-                                    } else if (Data[0].FLAG == "NORECORDFOUND") {
-                                        alert('NO Record Found For Your Search Result');
-                                    } else if (Data[0].FLAG == "ERRORINQUERY") {
-                                        alert('Error In Query');
-                                    }
-                                },
-                                error: function (Data) {
-                                    console.log('Error In Ajax Call ' + Data);
-                                    alert('Something Went Wrong');
-                                }
-                            });
-                        } else if (Data[0].FLAG == "RECORDNOTFOUND") {
-                            console.log("No Such Product Found");
-                            alert("No Such Product Found");
-                        }
-                        else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
-                            console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong1");
-                        }
-                        else {
-                            console.log('Other Then Flag');
-                            alert('Something Went Wrong2');
-                        }
-                        }
-                    },
-                    error: function (Data) {
-                        console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong3');
-                    }
-                });
-            //} else {
-             //   alert('All Fields are Required.');
-            //}
-        });
-
         $("#searchbtn").click(function () {
             $("#searchedTable tbody").empty();
-
             if(lockflag == false){
                 swal("Please Lock The Date", '', 'info').then(()=>{return;});
                 return;
             }
-
             var category = $("#category_name").val();
             var subcategory = $("#subcategories").val();
             var brandname = $("#getbrandname").val();
@@ -780,7 +644,7 @@
             if (category != '-1' && subcategory != '-1' && brandname != '-1' && hsncode != ' ' && grade != '-1' && colortype != '-1' && dimension != '-1' && qtyperunit != '-1' && packingunit != '-1' && codeno != '-1' && gstno != ' ') {
                 $.ajax({
                     type: "POST",
-                    url: "./AddNewChallanAjax/searchProductId.php",
+                    url: "./SearchAndManageBreakageAndDamageAjax/searchProductId.php",
                     data: { category: category, subcategory: subcategory, brandname: brandname, hsncode: hsncode, grade: grade, colortype: colortype, dimension: dimension, qtyperunit: qtyperunit, packingunit: packingunit, codeno: codeno, gstno: gstno },
                     dataType: 'json',
                     success: function (Data) {
@@ -807,12 +671,13 @@
                                             var billingqty = Data[i].billingqty;
                                             var otherqty = Data[i].otherqty;
                                             var baseprice = Data[i].baseprice;
-                                            var dateadded = Data[i].dateadded;
+                                            var dateadded = splitDate(Data[i].dateadded);
                                             var stockid = Data[i].stockid;
                                             var sysid = Data[i].sysid;
                                             var damagedbillingqty = Data[i].dbillingqty;
                                             var damagedotherqty = Data[i].dotherqty;
-                                            var dcreateddate = Data[i].dcreateddate
+                                            var dcreateddate = splitDate(Data[i].dcreateddate);
+                                            var batchno = Data[i].batchno;
                                             //stockids=stockid;
 
                                             $("#searchedTable tbody:last-child").append(
@@ -827,6 +692,7 @@
                                                 '<td>' + packingunit + '</td>' +
                                                 '<td>' + grade + '</td>' +
                                                 '<td>' + codeno + '</td>' +
+                                                '<td>' + batchno + '</td>' +
                                                 // '<td>' + gstno + '</td>' +
                                                 '<td hidden>' + billingqty + '</td>' +
                                                 '<td hidden>' + otherqty + '</td>' + 
@@ -840,74 +706,40 @@
                                             );
                                         }
                                     } else if (Data[0].FLAG == "NORECORDFOUND") {
-                                        alert('NO Record Found For Your Search Result');
+                                        swal('NO Record Found For Your Search Result','','info');
                                     } else if (Data[0].FLAG == "ERRORINQUERY") {
-                                        alert('Error In Query');
+                                        console.log("Error In Query");
+                                        swal("Something Went Wrong", '', 'error');
                                     }
                                 },
                                 error: function (Data) {
                                     console.log('Error In Ajax Call ' + Data);
-                                    alert('Something Went Wrong');
+                                    swal("Something Went Wrong", '', 'error');
                                 }
                             });
                         } else if (Data[0].FLAG == "RECORDNOTFOUND") {
                             console.log("No Such Product Found");
-                            alert("No Such Product Found");
+                            swal("No Such Product Found", '', 'info');
                         }
                         else if (Data[0].FLAG == 'ERRORINEXECUTINGQUERY') {
                             console.log("ERROR IN EXECUTING QUERY");
-                            alert("Something Went Wrong");
+                            swal("Something Went Wrong", '', 'error');
                         }
                         else {
                             console.log('Other Then Flag');
-                            alert('Something Went Wrong');
+                            swal("Something Went Wrong", '', 'error');
                         }
                     },
                     error: function (Data) {
                         console.log('Error In Ajax Call ' + Data);
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 });
             } else {
-                alert('All Fields are Required.');
+                swal('All Fields are Required.', '', 'warning');
             }
+            mode = 1;
         });
-
-        
-        // $("#searchedTable").on('click', '.selectbtn1', function () {
-        //     console.log($(this).attr('StockId'));
-        //     StockId = $(this).attr('StockId');
-        //     //stockids=stockid;
-
-        //     //console.log(stockids);
-
-        //     if (!stockIdsToBePurchased.has(StockId)) {
-        //         stockIdsToBePurchased.add(StockId);
-        //         let tr = $(this).parent().siblings();
-
-        //         let obj = Array();
-
-        //         for (let i = 0; i < 15; i++) {
-        //             obj.push(tr.html());
-        //             tr = tr.next();
-        //         }
-        //         var ids=$(this).attr("stockid");
-        //         var trToBeAppend =
-        //             '<tr>' +
-        //                 '<td>' + obj[11] + '</td>' +
-        //                 '<td>' + obj[12] + '</td>' +
-        //                 '<td width="7%" ><input class="form-control purchase-qty calprice1" type="number" step="1" id="billingqty1_' + $(this).attr("StockId") + '" >' +
-        //                 '<td width="7%" ><input class="form-control purchase-qty calprice1" type="number" step="1" id="otherqty1_' + $(this).attr("StockId") + '" >' +
-        //                 '<td></td>'+
-        //                 '<td><button value="Remove" class="btn btn-danger removebtn1"  onclick="calprice1('+ids+')" >Update</button></td>' +
-        //             '</tr>';
-
-        //         $("#purchasedTable tbody:last-child").append(trToBeAppend);
-        //     }// Only once the row gets copied from breakage n damage table to purchased item table
-        //     else {
-        //         alert('Item Alredy Present Inside Purchased Items List');
-        //     }
-        // });
 
         $("#searchedTable").on('click', '.selectbtn', function () {
             console.log($(this).attr('stockid'));
@@ -923,7 +755,7 @@
 
                 let obj = Array();
 
-                for (let i = 0; i < 16; i++) {
+                for (let i = 0; i < 17; i++) {
                     obj.push(tr.html());
                     tr = tr.next();
                 }
@@ -940,46 +772,23 @@
                         '<td>' + obj[6] + '</td>' +
                         '<td>' + obj[7] + '</td>' +
                         '<td>' + obj[8] + '</td>' +
-                        '<td hidden>' + obj[9] + '</td>' +
+                        '<td>' + obj[9] + '</td>' +
                         '<td hidden>' + obj[10] + '</td>' +
-                        '<td>' + obj[11] + '</td>' +
+                        '<td hidden>' + obj[11] + '</td>' +
                         '<td>' + obj[12] + '</td>' +
                         '<td>' + obj[13] + '</td>' +
                         '<td>' + obj[14] + '</td>' +
                         '<td>' + obj[15] + '</td>' +
-                        '<td width="7%" ><input class="form-control purchase-qty calprice" type="number" onkeyup="cheakValidityOfStock(this, '+obj[9]+', '+obj[13]+')" step="1" id="updatedbillingqty_' + sysid + '" >' +
-                        '<td width="7%" ><input class="form-control purchase-qty calprice" type="number" onkeyup="cheakValidityOfStock(this, '+obj[10]+', '+obj[14]+')" step="1" id="updatedotherqty_' + sysid + '" >' +
+                        '<td>' + obj[16] + '</td>' +
+                        '<td width="7%" ><input class="form-control purchase-qty calprice" type="number" onkeyup="cheakValidityOfStock(this, '+obj[10]+', '+obj[14]+')" step="1" id="updatedbillingqty_' + sysid + '" >' +
+                        '<td width="7%" ><input class="form-control purchase-qty calprice" type="number" onkeyup="cheakValidityOfStock(this, '+obj[11]+', '+obj[15]+')" step="1" id="updatedotherqty_' + sysid + '" >' +
                         '<td><button value="Update" class="btn btn-danger updatebtn" sysid="'+sysid+'"  stockid="'+stockid+'">Update</button></td>' +
                     '</tr>';
 
                 $("#purchasedTable tbody:last-child").append(trToBeAppend);
             }// Only once the row gets copied from breakage n damage table to purchased item table
             else {
-                alert('Item Alredy Present Inside Purchased Items List');
-            }
-        });
-
-        $("#purchasedTable").on('click', '.removebtn1', function () {
-            var stockid = $(this).attr('StockId');
-
-            if (stockIdsToBePurchased.delete(StockId)) {
-                var p = $(this).parent().parent().remove();
-                calprice1();
-            }
-            else {
-                console.log('Error in remove')
-            }
-        });
-
-        $("#purchasedTable").on('click', '.removebtn', function () {
-            var stockid = $(this).attr('stockid');
-
-            if (stockIdsToBePurchased.delete(stockid)) {
-                var p = $(this).parent().parent().remove();
-                calprice();
-            }
-            else {
-                console.log('Error in remove')
+                swal('Item Alredy Present Inside Purchased Items List', '','info');
             }
         });
 
@@ -1016,7 +825,12 @@
                             swal("Successfully Updated Damaged Stock Quentity", '', 'success').then(()=>{
                                 sysIdsToBeUpdated.delete(sysid.toString());
                                 ref.parent().parent().remove();
-                                $("#searchbtn").click();
+                                if(mode == 1){
+                                    $("#searchbtn").click();
+                                }
+                                else if(mode == 2){
+                                    $("#lockbtn").click();
+                                }
                                 return;
 
                             });
@@ -1052,7 +866,7 @@
             ResetSelectMenu($("#getgrade"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getGrades.php",
+                url: "./SearchAndManageBreakageAndDamageAjax/getGrades.php",
                 dataType: 'json',
                 success: function (Data) {
                     if (Data[0].FLAG == 'OKK') {
@@ -1064,16 +878,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal("Something Went Wrong", '', 'error');
                 }
             });
         }
@@ -1082,7 +896,7 @@
             ResetSelectMenu($("#getbrandname"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getBrandNames.php",
+                url: "./SearchAndManageBreakageAndDamageAjax/getBrandNames.php",
                 dataType: 'json',
                 success: function (Data) {
                     if (Data[0].FLAG == 'OKK') {
@@ -1094,16 +908,16 @@
                     }
                     else if (Data[0] == 'ERRORINEXECUTINGQUERY') {
                         console.log("ERROR IN EXECUTING QUERY");
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                     else {
                         console.log('OTHER THEN FLAG');
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log(Data);
-                    alert('Something Went Wrong');
+                    swal("Something Went Wrong", '', 'error');
                 }
             });
         }
@@ -1112,7 +926,7 @@
             ResetSelectMenu($("#subcategories"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getAllSubCategories.php",
+                url: "./SearchAndManageBreakageAndDamageAjax/getAllSubCategories.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -1126,15 +940,15 @@
                     }
                     else if (Data[0].FLAG == "NORECORDFOUND") {
                         console.log("No Subcategory Found For Given Category");
-                        alert('No Subcategory Found For Given Category');
+                        swal('No Subcategory Found For Given Category', '','info');
                     }
                     else if (Data[0].FLAG == "NOTOK") {
                         console.log("Error In Executing Query");
-                        alert("Something Went Wrong");
+                        swal("Something Went Wrong", '', 'error');
                     }
                     else {
                         console.log('Other Response Found');
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 },
                 error: function (Data) {
@@ -1150,7 +964,7 @@
             ResetSelectMenu($("#getdimension"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getAllDimesnsions.php",
+                url: "./SearchAndManageBreakageAndDamageAjax/getAllDimesnsions.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -1163,20 +977,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '', 'info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal("Something Went Wrong", '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Erroe In ./SearchAndManageProductAjax/getAllDimesnsions.php   AJax Call");
-                    alert("Soething Went Wrong");
+                    swal("Something Went Wrong", '', 'error');
                 }
             });
         }
@@ -1186,7 +1000,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getQtyPerUnit.php",
+                url: "./SearchAndManageBreakageAndDamageAjax/getQtyPerUnit.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -1199,20 +1013,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '', 'info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal("Something Went Wrong", '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Error In ./SearchAndManageProductAjax/getAllDimesnsions.php   AJax Call");
-                    alert("Soething Went Wrong");
+                    swal("Something Went Wrong", '', 'error');
                 }
             });
         }
@@ -1222,7 +1036,7 @@
             ResetSelectMenu($("#getProductTypeColor"));
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getProductTypeColor.php",
+                url: "./SearchAndManageBreakageAndDamageAjax/getProductTypeColor.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -1234,20 +1048,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '', 'info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal("Something Went Wrong", '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Error In  ./SearchAndManageProductAjax/getProductTypeColor.php AJax Call");
-                    alert("Soething Went Wrong");
+                    swal("Something Went Wrong", '', 'error');
                 }
             });
         }
@@ -1257,7 +1071,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "./AddNewChallanAjax/getCode.php",
+                url: "./SearchAndManageBreakageAndDamageAjax/getCode.php",
                 dataType: 'json',
                 success: function (Data) {
                     console.log(Data);
@@ -1270,20 +1084,20 @@
                     }
                     else if (Data[0].FLAG == "NORECORD") {
                         console.log("No Record Found");
-                        alert("No Record Found");
+                        swal("No Record Found", '', 'info');
                     }
                     else if (Data[0].FLAG == "ERREXECUTINGQUERY") {
                         console.log('Error In Executing Query');
-                        alert("Something Went Wrong");
+                        swal("Something Went Wrong", '', 'error');
                     }
                     else {
                         console.log("Other Response FOund");
-                        alert('Something Went Wrong');
+                        swal("Something Went Wrong", '', 'error');
                     }
                 },
                 error: function (Data) {
                     console.log("Error In  ./SearchAndManageProductAjax/getCode.php AJax Call");
-                    alert("Something Went Wrong");
+                    swal("Something Went Wrong", '', 'error');
                 }
             });
         }
@@ -1294,49 +1108,6 @@
         }
 
     });
-
-    function validateQty(obj, maxqty) {
-        var qty = obj.value;
-
-        dotqty = qty - Math.trunc(qty)
-        if (dotqty <= 0) {
-            if (qty > maxqty) {
-                alert('Max Stock Qty = ' + maxqty);
-                obj.value = "";
-            }
-            else if (qty < 0) {
-                alert('Quantity Cant Be Minus');
-                obj.value = "";
-            }
-        }
-        else {
-            alert("Qty Cant Be Float");
-            obj.value = "";
-        }
-    }
-
-    function calprice1(y) {
-
-        var totalprice = 0,stocksid=0;
-        console.log(y);
-        var billingQty = $("#billingqty_"+y).val();
-        var otherQty = $("#otherqty_" +y).val();
-        totalprice=billingQty;
-  
-        var val1 = totalprice;
-        var val2 = otherQty;
-        var val3 = y;
-        console.log(val2);
-
-            $.ajax({
-                type: 'POST',
-                url: './SearchAndManageProductAjax/SearchAndManageupdatestockdetails1.php',
-                data: { val1: val1, val2: val2, val3:val3 },
-                success: function() {
-                    alert('Data added successfully');
-                }
-            });             
-    }
 
     function cheakValidityOfStock(ref, maxqty, minqty){
         var qty = ref.value;
@@ -1362,26 +1133,11 @@
             }
         }
     }
-    // function calprice(y) {
-    //     var totalprice = 0,stocksid=0;
-    //     console.log(y);
-    //     var billingQty = $("#billingqty_"+y).val();
-    //     var otherQty = $("#otherqty_" +y).val();
-    //     totalprice=billingQty;
-  
-    //     var val1 = totalprice;
-    //     var val2 = otherQty;
-    //     var val3 = y;
-    //     console.log(val2);
 
-    //         $.ajax({
-    //             type: 'POST',
-    //             url: './AddNewChallanAjax/SearchAndManageupdatestockdetails.php',
-    //             data: { val1: val1, val2: val2, val3:val3 },
-    //             success: function() {
-    //                 alert('Data added successfully');
-    //             }
-    //         });       
-    // }
-
+    function splitDate(date) {
+        var DateArray = date.split(" ");
+        DateArray = DateArray[0];
+        DateArray = DateArray.split("-");
+        return (DateArray[2]+"-"+DateArray[1]+"-"+DateArray[0]);
+    }
 </script>

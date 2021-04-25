@@ -84,7 +84,7 @@
                                     <div class="col-md-3">
                                         <label class="form-label" style="margin-right: 10px;">Search By: </label>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-check-label" for="challanNoRadio">
                                             <input class="form-check-input searchby" type="radio" name="searchBy"
                                                 id="challanNoRadio" value="Challan No" onchange="checkRadio()">
@@ -95,6 +95,12 @@
                                             <input class="form-check-input searchby" type="radio" name="searchBy"
                                                 id="customerNameRadio" value="Customer Name" onchange="checkRadio()">
                                             Customer Name</label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-check-label" for="dateRadio">
+                                            <input class="form-check-input searchby" type="radio" name="searchBy"
+                                                id="dateRadio" value="Date" onchange="checkRadio()">
+                                            Date</label>
                                     </div>
                                 </div>
                                 <div class="row col-md-6">
@@ -192,8 +198,8 @@
                         hidden>
                         <input type="text" name='challanid' id='pdfFormChallanId'>
                     </form>
-                    <form action="./SearchAndManageChallanAjax/editChallan.php" method="POST" id='editform' target="_blank"
-                        hidden>
+                    <form action="./SearchAndManageChallanAjax/editChallan.php" method="POST" id='editform'
+                        target="_blank" hidden>
                         <input type="text" name='challanid' id='editFormChallanId'>
                     </form>
                 </div>
@@ -214,7 +220,7 @@
             $("#searchbtn").click(function () {
                 $("#allchallantable tbody").empty();
 
-                if ($("#challanNoRadio").prop('checked') == false && $("#customerNameRadio").prop('checked') == false) {
+                if ($("#challanNoRadio").prop('checked') == false && $("#customerNameRadio").prop('checked') == false && $("#dateRadio").prop('checked') == false) {
                     swal("Please Select Search By Option", '', 'info');
                     return;
                 }
@@ -231,7 +237,7 @@
                     }
                     searchChallanByChallanNo(challanno);
                 }
-                else {
+                else if ($("#customerNameRadio").prop('checked') == true) {
                     var customerid = $("#customer-id").val();
                     if (customerid == '-1') {
                         swal("Please Select Customer", '', 'info');
@@ -249,6 +255,19 @@
                     }
                     serchChallanByCustomerId(customerid, fromdate, todate);
                 }
+                else {
+                    var fromdate = $("#getFromDate").val();
+                    if (fromdate == "") {
+                        swal("Please Select From Date", '', 'info');
+                        return;
+                    }
+                    var todate = $("#getToDate").val();
+                    if (todate == "") {
+                        swal("Please Select To Date", '', 'info');
+                        return;
+                    }
+                    searchChallanByDate(fromdate, todate);
+                }
 
 
             });
@@ -259,7 +278,7 @@
                 }
             });
 
-            $("#allchallantable tbody").on('click', '.editbtn', function(){
+            $("#allchallantable tbody").on('click', '.editbtn', function () {
                 var challanid = $(this).attr('challanid');
                 $("#editFormChallanId").val(challanid);
                 $("#editform").submit();
@@ -478,7 +497,7 @@
                                         "<td>" + challandate + "</td>" +
                                         "<td>" + customername + "</td>" +
                                         "<td>" +
-                                        "<button class='btn btn-primary editbtn' "+isDisabled+" challanid='" + challanid + "'>Edit</button>" +
+                                        "<button class='btn btn-primary editbtn' " + isDisabled + " challanid='" + challanid + "'>Edit</button>" +
                                         " <button class='btn btn-success openbtn' challanid='" + challanid + "'>Open</button>" +
                                         " <button class='btn btn-warning pdfbtn' challanid='" + challanid + "'>Pdf</button>" +
                                         " <button class='btn btn-danger deletebtn' " + isDisabled + " challanid='" + challanid + "' challanno='" + challanno + "'>Delete</button>" +
@@ -512,6 +531,69 @@
                 }
             }
 
+            function searchChallanByDate(fromdate, todate) {
+                if (fromdate != "" && todate != "") {
+                    $.ajax({
+                        type: "POST",
+                        url: "./SearchAndManageChallanAjax/searchChallanByDate.php",
+                        data: {fromdate: fromdate, todate: todate },
+                        dataType: 'json',
+                        success: function (Data) {
+                            if (Data[0].FLAG == "OKK") {
+                                var n = Data.length;
+                                for (var i = 1; i < n; i++) {
+                                    var challanid = Data[i].challanid;
+                                    var challanno = Data[i].challanno;
+                                    var challandate = Data[i].challandate;
+                                    var customername = Data[i].customername;
+                                    var recstatus = Data[i].recstatus;
+                                    if (recstatus == '0') {
+                                        var color = "style='background-color:#ff8080'";
+                                        var isDisabled = "disabled";
+                                    }
+                                    else {
+                                        color = "";
+                                        isDisabled = "";
+                                    }
+                                    $("#allchallantable tbody:last-child").append(
+                                        "<tr " + color + ">" +
+                                        "<td>" + challanno + "</td>" +
+                                        "<td>" + challandate + "</td>" +
+                                        "<td>" + customername + "</td>" +
+                                        "<td>" +
+                                        "<button class='btn btn-primary editbtn' " + isDisabled + " challanid='" + challanid + "'>Edit</button>" +
+                                        " <button class='btn btn-success openbtn' challanid='" + challanid + "'>Open</button>" +
+                                        " <button class='btn btn-warning pdfbtn' challanid='" + challanid + "'>Pdf</button>" +
+                                        " <button class='btn btn-danger deletebtn' " + isDisabled + " challanid='" + challanid + "' challanno='" + challanno + "'>Delete</button>" +
+                                        "</td>" +
+                                        "</tr>"
+                                    );
+                                }
+                            }
+                            else if (Data[0].FLAG == "NORECORDFOUND") {
+                                swal("Challan Not Found For Selected Customer Or Given Range Of Date", '', 'warning');
+                            }
+                            else if (Data[0].FLAG == "ERRINQUERY") {
+                                console.log("Error In Query");
+                                swal('Something Went Wrong', '', 'error');
+                            }
+                            else {
+                                console.log("other Response Found");
+                                swal('Something Went Wrong', '', 'error');
+                            }
+                        },
+                        error: function (Data) {
+                            console.log("Err In ./SearchAndManageChallanAjax/searchChallanByCustomerId.php Ajax Call");
+                            swal("Something Went Wrong", '', 'error');
+                            return;
+                        }
+                    });
+                }
+                else {
+                    swal("Customer Or From Date Or To Date Empty", "", 'info');
+                    return;
+                }
+            }
         });
 
         function checkRadio() {
@@ -524,12 +606,22 @@
                 $("#getFromDate").val("");
                 $("#getToDate").val("<?php echo $today; ?>");
             }
-            else {
+            else if ($("#customerNameRadio").prop('checked') == true) {
                 $("#challan-no").prop('disabled', true);
                 $(".get-date").prop('disabled', false);
                 $("#customer-id").prop('disabled', false).chosen();
                 $("#customer-id").prop('disabled', false).trigger('chosen:updated');
                 $("#challan-no").val("");
+            }
+            else {
+                $(".get-date").prop('disabled', false);
+                $("#customer-id").val("-1");
+                $("#customer-id").prop('disabled', true).chosen();
+                $("#customer-id").prop('disabled', true).trigger('chosen:updated');
+                $("#challan-no").val("");
+                $("#challan-no").prop('disabled', true);
+                $("#getFromDate").val("");
+                $("#getToDate").val("<?php echo $today; ?>");
             }
             $("#allchallantable tbody").empty();
         }

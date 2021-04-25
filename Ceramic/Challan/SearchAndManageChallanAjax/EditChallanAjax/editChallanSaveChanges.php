@@ -26,7 +26,7 @@
         $updatebillingqty  = $billingqty - $oldbillingqty;
         $updateotherqty    = $otherqty - $oldotherqty;
 
-        $total = (intval($billingqty) + intval($otherqty))* floatval($sellingprice);
+        $total = $total + (intval($billingqty) + intval($otherqty))* floatval($sellingprice);
 
         $editInChallanDetails = "UPDATE challandetails SET BillingQty = BillingQty + ({$updatebillingqty}) , OtherQty = OtherQty + ({$updateotherqty}), SellingPrice = {$sellingprice} WHERE ChallanId = {$challanid} and StockId= {$stockid}";
         $result_editInChallanDetails = mysqli_query($conn, $editInChallanDetails);

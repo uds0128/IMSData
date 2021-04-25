@@ -106,13 +106,22 @@
             }else{
                 $status = "Pending";
             }
-            $insertIntoInwardPayment = "INSERT INTO tblinwardpayment (InwardId,PaymentDate,AmountPaid,AmountPending,Status,PaymentMode,RoundOffDade,StockMstSysId,ChallanId) value (0,'".$challandate."',".$advancepayment.",".$dueamount.",'".$status."','Customer',0,1,".$last_Challan_id.")";
-            $resultinsertIntoInwardPayment = mysqli_query($conn,$insertIntoInwardPayment);
-            if(!$resultinsertIntoInwardPayment){
-                $flag = array('FLAG' => 'ERRINPAY'); //ERRINPAY => Error in Payment Insertion
+            $insertIntoInwardPayment0 = "INSERT INTO tblinwardpayment (InwardId,PaymentDate,AmountPaid,AmountPending,Status,PaymentMode,RoundOffDade,StockMstSysId,ChallanId) value (0,'".$challandate."',".$advancepayment.",".$dueamount.",'".$status."','Customer',0,1,".$last_Challan_id.")";
+            $resultinsertIntoInwardPayment0 = mysqli_query($conn,$insertIntoInwardPayment0);
+            if(!$resultinsertIntoInwardPayment0){
+                $flag = array('FLAG' => 'ERRINPAY0'); //ERRINPAY => Error in Payment Insertion
                 $dataToBeSent[] = $flag;
                 die (json_encode($dataToBeSent));
             }
+
+            $insertIntoInwardPayment1 = "INSERT INTO tblinwardpayment (InwardId,PaymentDate,AmountPaid,AmountPending,Status,PaymentMode,RoundOffDade,StockMstSysId,ChallanId) value (0,'".$challandate."',".$advancepayment.",".$dueamount.",'".$status."','Customer',0,0,".$last_Challan_id.")";
+            $resultinsertIntoInwardPayment1 = mysqli_query($conn,$insertIntoInwardPayment1);
+            if(!$resultinsertIntoInwardPayment1){
+                $flag = array('FLAG' => 'ERRINPAY1'); //ERRINPAY => Error in Payment Insertion 1
+                $dataToBeSent[] = $flag;
+                die (json_encode($dataToBeSent));
+            }
+
             if(mysqli_commit($conn)){
                 
                 mysqli_autocommit($conn,true);
